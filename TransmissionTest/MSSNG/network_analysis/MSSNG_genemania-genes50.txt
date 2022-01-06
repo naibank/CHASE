@@ -1,0 +1,77 @@
+Symbol	Description	Score	Functions	Links
+KLHL33		0.9901117296600053		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=123103
+FSIP2		0.9868591832953271	cilium assembly	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=401024
+DNAH6		0.9841432814228226		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=1768
+SPATA22		0.9835748077973027		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=84690
+PCDH15		0.9813353606890463		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=65217
+IRAG1		0.9812309364477535		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10335
+STARD9		0.9801411622852577		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=57519
+SPATA13		0.9797556664571442		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=221178
+UHRF1BP1L		0.9750826967045805		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=23074
+CNTNAP4		0.9749000230809841		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=85445
+C2CD3		0.9743921707116407	centrosome, cilium assembly, membrane docking, organelle localization by membrane tethering, protein localization to cytoskeleton, protein localization to microtubule cytoskeleton, protein localization to microtubule organizing center	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=26005
+TRANK1		0.9741051686457087		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=9881
+GPR161		0.9726520038246176		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=23432
+BBS9		0.971224175964007	centrosome	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=27241
+PSD3		0.9711166160613494		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=23362
+LMCD1		0.9683233034172221	muscle adaptation, regulation of muscle adaptation, regulation of muscle system process	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=29995
+RRP1		0.9670003872756301		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=8568
+MICA		0.9630606763721503		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=100507436
+CTNNA3		0.9609480294919807	regulation of muscle system process	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=29119
+CA5A		0.958734053809138		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=763
+TUBA3C		0.9586295261574304		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=7278
+CDH13		0.9522259980724121		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=1012
+P2RX7		0.9518108896987901		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=5027
+PIBF1		0.9457397806942138	centrosome, cilium assembly, protein localization to cytoskeleton, protein localization to microtubule cytoskeleton, protein localization to microtubule organizing center	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10464
+RRP12		0.9436209417173159		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=23223
+CAMK2D		0.9084718412379611	muscle adaptation, regulation of muscle adaptation, regulation of muscle system process	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=817
+DBNL		0.006536601251192098		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=28988
+KLRC4-KLRK1		0.00608346105711477		http://www.ensembl.org/Homo_sapiens/geneview?gene=ENSG00000255819
+CASK		0.00441844077693343		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=8573
+RRP1B		0.004399753373203474		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=23076
+FBXO21		0.004019554970716821		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=23014
+AKAP4		0.0038053968465601162		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=8852
+EMP3		0.0037876682792423733		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=2014
+PANX1		0.0037275021776964623		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=24145
+ADIPOQ		0.003582344538901938		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=9370
+USH1C		0.0034438387082683652	cell cycle G2/M phase transition	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10083
+GALK1		0.0031179037406860455		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=2584
+CEP131		0.0031084742171329505	cell cycle G2/M phase transition, centrosome, cilium assembly, membrane docking, organelle localization by membrane tethering, protein localization to cytoskeleton, protein localization to microtubule cytoskeleton, protein localization to microtubule organizing center	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=22994
+CAMK2B		0.0029084780209919225	muscle adaptation, regulation of muscle adaptation, regulation of muscle system process	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=816
+PRKG1		0.0028183385991431		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=5592
+MAP3K2		0.0026287820836763953		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10746
+IRAG2		0.0025632465859968256		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=4033
+IL4R		0.002459981089411034	centrosome	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=3566
+AP2M1		0.0023502189471005797		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=1173
+MAST3		0.002319782768418044		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=23031
+CAMK2A		0.0023073876526155668		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=815
+PCM1		0.0022901374692875787	cell cycle G2/M phase transition, centrosome, cilium assembly, membrane docking, organelle localization by membrane tethering, protein localization to cytoskeleton, protein localization to microtubule cytoskeleton, protein localization to microtubule organizing center	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=5108
+LZTFL1		0.0021648918560226438		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=54585
+CEP70		0.0020676172867780673	cell cycle G2/M phase transition, cilium assembly, membrane docking, organelle localization by membrane tethering	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=80321
+ATP6V1E1		0.0020540897972273764		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=529
+TUBB4B		0.002036838433362942	cell cycle G2/M phase transition, cilium assembly, membrane docking, organelle localization by membrane tethering	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10383
+P2RX4		0.00200112593379953	muscle adaptation, regulation of muscle adaptation, regulation of muscle system process	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=5025
+SCN5A		0.0019679483176024415	muscle adaptation, regulation of muscle adaptation, regulation of muscle system process	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=6331
+STIP1		0.001896620514041658		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10963
+HSPH1		0.0018761460726256507		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10808
+PRKAR1A		0.0018574078641186431		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=5573
+NDUFA7		0.0018027206195212475		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=4701
+VPS52		0.0018013170175968374		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=6293
+EMP1		0.0017777763279727132		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=2012
+ERCC8		0.0017268976359575694		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=1161
+PRKAG3		0.0017142552431453906		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=53632
+TTC5		0.0016893310599811473		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=91875
+CFAP77		0.0016527641503256696		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=389799
+TM9SF1		0.0016351543969467253		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10548
+EIF4B		0.0015897854746010354		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=1975
+OFD1		0.001573102679974514	cell cycle G2/M phase transition, centrosome, cilium assembly, membrane docking, organelle localization by membrane tethering	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=8481
+TUBB3		0.0015234170167824357		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=10381
+PKP3		0.0014821366286897342		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=11187
+CTNNA1		0.0014644865922762706		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=1495
+EPHA10		0.001463525814597022		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=284656
+TIAM1		0.0014538417163886264		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=7074
+BBS5		0.001445510389019411	cilium assembly	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=129880
+RPS18		0.0014444481243873764		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=6222
+DYNLT1		0.0014368279877822188		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=6993
+LHFPL5		0.001426405847072043		http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=222662
+CEP63		0.0014241730444428113	cell cycle G2/M phase transition, cilium assembly, membrane docking, organelle localization by membrane tethering	http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term=80254
