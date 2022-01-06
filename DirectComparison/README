@@ -1,6 +1,6 @@
-This is the analysis where CH events are compared directly between two groups of samples, i.e. probands vs parents, probands vs unaffected siblings, etc. <br/><br/>
+This is the analysis where CH events are compared directly between two groups of samples, i.e. probands vs parents, probands vs unaffected siblings, etc.
 
-Please see below for the detail of the scripts. </br>
+Please see below for the detail of the scripts.
 - Updated_CHASE_Code.R - a script to collect CH events (within deletion boundaries) in MSSNG and save the result in yaml format.
 - CHASEcode_SSC.R - a script to collect CH events (within deletion boundaries) in SSC and save the result in yaml format.
 - Analyze_YAML.R - a script to perform some analysis/comparison of CH events where yaml files are input.
