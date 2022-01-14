@@ -15,30 +15,30 @@ library(GenomicRanges)
 #setwd("/hpf/largeprojects/tcagstor/tcagstor_tmp/dmager/SSC")
 # setwd("/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC")
 
-### STEP 1: Locate rare CNV deletions of ASD probands, who have inherited it or P_denovo and envelop exons 
+## STEP 1: Locate rare CNV deletions of ASD probands, who have inherited it or P_denovo and envelop exons 
 CNVfilter.procedure <- function(CNVfile.path){
   CNVs <- as_tibble(read.delim(CNVfile.path,stringsAsFactors = F))
-  #To have uniform column name across all databases for Sample ID
+  # To have uniform column name across all databases for Sample ID
   colnames(CNVs)[1] <- "Sample.ID"
   
-  #Selecting only CNV deletions
+  # Selecting only CNV deletions
   CNVs <- CNVs %>% dplyr::filter(variantTypeAnn == "deletion")
   
-  #Filtering out CNVs with "NA", Ambiguous and one parent sequenced inheritance
+  # Filtering out CNVs with "NA", Ambiguous and one parent sequenced inheritance
   # CNVs <-CNVs  %>% dplyr::filter(!is.na(Inheritance)) 
   # CNVs <- CNVs  %>% dplyr::filter(Inheritance != "Ambiguous")
   # CNVs <- CNVs  %>% dplyr::filter(Inheritance != "One_parent_sequenced") 
   # 
-  #Selecting only Paternally or Maternally Inherited CNVs
+  # Selecting only Paternally or Maternally Inherited CNVs
   CNVs <- CNVs  %>% dplyr::filter(Inheritance == "Paternal"|Inheritance == "Maternal")
   
-  #Selecting CNVs which envelop at least one CDS region
+  # Selecting CNVs which envelop at least one CDS region
   CNVs <- CNVs %>% dplyr::filter(cds_symbol != ""& !is.na(cds_symbol))
   
-  #selecting CNVs where the QC is "ok"
+  # Selecting CNVs where the QC is "ok"
   CNVs <- CNVs %>% dplyr::filter(Sample_QC == "ok")
   
-  #Filtering out CNVs located on the sex chromosomes
+  # Filtering out CNVs located on the sex chromosomes
   CNVs <- CNVs %>%  dplyr::filter(CHROM != "chrX" & CHROM != "chrY")
   
   return(CNVs)
@@ -46,17 +46,17 @@ CNVfilter.procedure <- function(CNVfile.path){
 
 print("TEST 1")
 
-##Loading in CNV databases + changing first column name to Sample.ID
-#Applying CNV filter procedure to SSC CNV 10P database
-CNVs_10Percent <- CNVfilter.procedure(CNVfile.path = "/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/CNVs/CNVs.SSC.freq_10percent.HQR.tsv")
+# Loading in CNV databases + changing first column name to Sample.ID
+# Applying CNV filter procedure to SSC CNV 10P database
+CNVs_10Percent <- CNVfilter.procedure(CNVfile.path = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/CNVs/CNVs.SSC.freq_10percent.HQR.tsv")
 
-### STEP 2
-#Family to exclude because proband also has an affected mother
-Family_to_exclude <- as_tibble(read.delim("/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/SSC_metadata.tsv", stringsAsFactors = F)) %>%
+## STEP 2
+# Family to exclude because proband also has an affected mother
+Family_to_exclude <- as_tibble(read.delim("/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/SSC_metadata.tsv", stringsAsFactors = F)) %>%
   filter(Relation == "proband") %>%
   filter(Sample.ID %in% Mother.ID | Sample.ID %in% Father.ID) %>% pull(Family.ID)
 
-##Subjects to exclude that failed CNV QC (Subjects can be added if needed)
+# Subjects to exclude that failed CNV QC (Subjects can be added if needed)
 Subjects_to_exclude <- c("SSC09651","SSC05770","SSC09923","SSC04868","SSC10162","SSC07001","SSC07819","SSC09280","SSC08169","SSC10798","SSC11555","SSC02241",
                          "SSC05551","SSC08065","SSC11881","SSC10250","SSC05055","SSC11874","SSC05183","SSC05809","SSC07802","SSC01113","SSC09431","SSC07287",
                          "SSC10874","SSC03297","SSC06244","SSC12781","SSC07579","SSC09671","SSC00091","SSC02016","SSC09360","SSC06759","SSC00089","SSC12226",
@@ -68,7 +68,7 @@ Subjects_to_exclude <- c("SSC09651","SSC05770","SSC09923","SSC04868","SSC10162",
                          "SSC05559","SSC08689","SSC04278")
 
 
-#locate probands ID's
+# Locate probands ID's
 LocateProbands <- function(metadata.filepath,CNV.database,Family_to_exclude,Subjects_to_exclude){
   probands <- as_tibble(read.delim(metadata.filepath, stringsAsFactors = FALSE)) %>%
     dplyr::filter(Relation == "proband") %>%
@@ -93,21 +93,21 @@ Locate_Usiblings <- function(metadata.filepath, CNV.database, Family_to_exclude,
   return(probands)
 }
 
-## To get probands who inherited at least one CNV deletion from a parent. 
-probands_10P <- LocateProbands(metadata.filepath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/SSC_metadata.tsv",
+# To get probands who inherited at least one CNV deletion from a parent. 
+probands_10P <- LocateProbands(metadata.filepath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/SSC_metadata.tsv",
                                CNV.database = CNVs_10Percent,
                                Family_to_exclude = Family_to_exclude,
                                Subjects_to_exclude = Subjects_to_exclude)
 
-#To get the unaffected siblings who Inherited at least one CNV deletion from a parent. 
-Unaffected_siblings10P <- Locate_Usiblings(metadata.filepath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/SSC_metadata.tsv",
+# To get the unaffected siblings who Inherited at least one CNV deletion from a parent. 
+Unaffected_siblings10P <- Locate_Usiblings(metadata.filepath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/SSC_metadata.tsv",
                                          CNV.database = CNVs_10Percent,
                                          Family_to_exclude = Family_to_exclude,
                                          Subjects_to_exclude = Subjects_to_exclude)
 
 # Locate parents of those probands
 LocateParents <- function(metadata.filepath, probands.data, Family_to_exclude, Subjects_to_exclude){
-  ## Filters out parents/samples that have been resequenced, are not in the vectors of samples that need to be excluded and keeps only the parents of the probands with at least one inherited CNV deletion.
+  # Filters out parents/samples that have been resequenced, are not in the vectors of samples that need to be excluded and keeps only the parents of the probands with at least one inherited CNV deletion.
   parents <- as_tibble(read.delim(metadata.filepath, stringsAsFactors = FALSE)) %>%
     filter(Exclude.because.re.sequenced. != "yes") %>%
     filter(!Family.ID %in% Family_to_exclude &
@@ -116,17 +116,17 @@ LocateParents <- function(metadata.filepath, probands.data, Family_to_exclude, S
   return(parents)
 }
 
-parents_10P <- LocateParents(metadata.filepath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/SSC_metadata.tsv",
+parents_10P <- LocateParents(metadata.filepath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/SSC_metadata.tsv",
                              probands.data = probands_10P,
                              Family_to_exclude = Family_to_exclude,
                              Subjects_to_exclude = Subjects_to_exclude)
 
 print("TEST 2")
 
-##STEP 3: A loop that looks per proband if there are any CH events, get relevant CNV + SNV data (from proband,mother and father) if so and figures out the inheritance of SNV
+## STEP 3: A loop that looks per proband if there are any CH events, gets relevant CNV + SNV data (from proband, mother and father) if so and figures out the inheritance of SNV
 # To store data
 
-## Function and loop to find possible CH events in the CNV databases
+# Function and loop to find possible CH events in the CNV databases
 
 Get_CH_Events <- function(probands, CNVdf, CNVpath, SNVfolder){
   allCNVs <- as_tibble(fread(CNVpath, fill = T)) %>% dplyr::filter(variantTypeAnn == "deletion" & 
@@ -140,41 +140,41 @@ Get_CH_Events <- function(probands, CNVdf, CNVpath, SNVfolder){
   for(i in 1:nrow(probands)){
     
     #Get the filepath to the proband's relevant SNV file
-    probandFilepath <- str_c(c("/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/", SNVfolder, "/", 
-                               probands$Sample.ID[i], ".tsv.gz"), collapse = "") #search proband SNV data
+    probandFilepath <- str_c(c("/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/", SNVfolder, "/", 
+                               probands$Sample.ID[i], ".tsv.gz"), collapse = "") # Search proband SNV data
     
     proband <- probands$Sample.ID[i]
     
-    #Empty vector for probands' mother
+    # Empty vector for probands' mother
     mother <- vector("character", length = 1)
     
-    #Get the filepath to mother SNV file
+    # Get the filepath to mother SNV file
     mother <- probands %>% dplyr::filter(probands$Sample.ID == probands$Sample.ID[i]) %>% 
       pull(Mother.ID) #search probands' mother SNV data
-    motherFilepath <- str_c(c("/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/", SNVfolder, "/",
+    motherFilepath <- str_c(c("/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/", SNVfolder, "/",
                               mother[1], ".tsv.gz"), collapse = "")
     
-    #Empty vector for probands' father
+    # Empty vector for probands' father
     father <- vector("character", length = 1)
     
-    #Get the filepath to father SNV file
+    # Get the filepath to father SNV file
     father <- probands %>% dplyr::filter(probands$Sample.ID == probands$Sample.ID[i]) %>%
       pull(Father.ID) #search probands' father SNV data
-    fatherFilepath <- str_c(c("/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/", SNVfolder, "/",
+    fatherFilepath <- str_c(c("/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/", SNVfolder, "/",
                               father[1], ".tsv.gz"), collapse = "")
     
-    #Identify if proband has a CH event
-    #METHOD 1: Identifies all SNVs that are within a CNV region of a proband (1) --> therefore, SNVs are on the allele without the deletion (CNV)
-    #METHOD 2: Identifies all SNVs that are somewhat outside of CNV boundaries (2) --> however, located on the other allele + in a gene affected by the CNV
+    # Identify if proband has a CH event
+    # METHOD 1: Identifies all SNVs that are within a CNV region of a proband (1) --> therefore, SNVs are on the allele without the deletion (CNV)
+    # METHOD 2: Identifies all SNVs that are somewhat outside of CNV boundaries (2) --> however, located on the other allele + in a gene affected by the CNV
     
-    #Load CNV data from proband, mother and father
+    # Load CNV data from proband, mother and father
     probandCNVs <- CNVdf %>% dplyr::filter(Sample.ID == proband)
     motherCNVs <- allCNVs %>% dplyr::filter(Sample.ID == mother)
     fatherCNVs <- allCNVs %>% dplyr::filter(Sample.ID == father)
     
-    ## get CNVs data per proband (mother and father CNVs as well)
-    ## if inheritance CNVs is not found in parent, we removed
-    ## filter out non transmitted CNVs
+    # get CNVs data per proband (mother and father CNVs as well)
+    # if inheritance CNVs is not found in parent, we removed
+    # filter out non transmitted CNVs
     probandFilteredCNVs <- data.frame()
     for(inheritance in c("Maternal", "Paternal")){
       parentCNVs <- motherCNVs
@@ -204,7 +204,7 @@ Get_CH_Events <- function(probands, CNVdf, CNVpath, SNVfolder){
     
     lens <- sapply(CH_Data[[proband]], nrow)
     
-    ###get SNVs data
+    ## Get SNVs data
     for(member in c("proband", "Mother", "Father")){
       if(member == "proband"){
         cnv <- "CNVs"
@@ -247,19 +247,19 @@ Get_CH_Events <- function(probands, CNVdf, CNVpath, SNVfolder){
 
 print("getting probands data")
 
-## To get data for the comparison of CH event between probands and their transmitting parents
+# To get data for the comparison of CH event between probands and their transmitting parents
 Get_CH_Events(probands = probands_10P,
               CNVdf = CNVs_10Percent,
-              CNVpath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/CNVs/CNVs.SSC.freq_10percent.HQR.tsv",
+              CNVpath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/CNVs/CNVs.SSC.freq_10percent.HQR.tsv",
               SNVfolder = "exonic_splicing") %>%
   write_yaml(.,"SSC_CH_Data10P_Bank.yaml")
 
 print("getting unaffected siblings data")
 
-## To get data for comparison of CH event between unaffected siblings and their transmitting parents
+# To get data for comparison of CH event between unaffected siblings and their transmitting parents
 Get_CH_Events(probands = Unaffected_siblings10P,
               CNVdf = CNVs_10Percent,
-              CNVpath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/SSC/CNVs/CNVs.SSC.freq_10percent.HQR.tsv",
+              CNVpath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/CNVs/CNVs.SSC.freq_10percent.HQR.tsv",
               SNVfolder = "exonic_splicing") %>%
   write_yaml(.,"SSC_CH.unaffectedSiblings_Data10P_Bank.yaml")
 

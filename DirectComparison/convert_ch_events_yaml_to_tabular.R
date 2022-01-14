@@ -1,8 +1,9 @@
-files <- list.files("../CH_Events/", full.names = T)
+setwd("/Users/faraz/Documents/Work/Workterm 5 - SickKids/CHASE/Faraz")
+files <- list.files("./CH Events", full.names = T)
 
 mssng <- files[grep("ILMN", files)]
 ssc <- files[-grep("ILMN", files)]
-
+ssc <- ssc[-grep("CG", files)]
 dt.mssng <- data.frame()
 for(file in mssng){
   suffix <- gsub(".tsv", "", strsplit(file, "_")[[1]][3])
@@ -34,8 +35,8 @@ for(file in ssc){
   dt.ssc <- rbind(dt.ssc, dt)
 }
 
-mssng.meta <- read.delim("../../data/MSSNG_metadata.tsv", stringsAsFactors = F)
-ssc.meta <- read.delim("../../data/SSC/SSC_metadata.tsv", stringsAsFactors = F)
+mssng.meta <- read.delim("MSSNG_metadata.tsv", stringsAsFactors = F)
+ssc.meta <- read.delim("SSC_metadata.tsv", stringsAsFactors = F)
 
 mssng.meta <- mssng.meta[mssng.meta$Relation %in% c("affected sibling", "child", "proband"), c("Sample.ID", "Relation", "Mother.ID", "Father.ID")]
 ssc.meta <- ssc.meta[ssc.meta$Relation %in% c("ohter sibling", "proband", "unaffected sibling"), c("Sample.ID", "Relation", "Mother.ID", "Father.ID")]
@@ -48,3 +49,4 @@ dt.ssc <- dt.ssc[dt.ssc$inheritance != "ambiguous" & dt.ssc$inheritance != dt.ss
 
 write.table(dt.mssng, "MSSNG.CHEvents.tsv", sep="\t", row.names=F, quote=F, col.names=T)
 write.table(dt.ssc, "SSC.CHEvents.tsv", sep="\t", row.names=F, quote=F, col.names=T)
+
