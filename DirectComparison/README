@@ -1,8 +1,8 @@
 This is the analysis where CH events are compared directly between two groups of samples, i.e. probands vs parents, probands vs unaffected siblings, etc.
 
 Please see below for the detail of the scripts.
-- Updated_CHASE_Code.R - a script to collect CH events (within deletion boundaries) in MSSNG and save the result in yaml format.
-- CHASEcode_SSC.R - a script to collect CH events (within deletion boundaries) in SSC and save the result in yaml format.
-- Analyze_YAML.R - a script to perform some analysis/comparison of CH events where yaml files are input.
-- getCHEvents.R - a script to convert CH event data in yaml into normal tabulate formate.
-- getCNVExonicSize.R - a sample script to get total exonic size of the inherited deletions for a purpose of normalization.
+- get_ch_events_mssng.R - a script to collect CH events (within deletion boundaries) in MSSNG and save the result in yaml format.
+- get_ch_events_ssc.R - a script to collect CH events (within deletion boundaries) in SSC and save the result in yaml format.
+- analyze_ch_events_yaml.R - a script to perform some analysis/comparison of CH events where yaml files are input.
+- convert_ch_events_yaml_to_tabular.R - a script to convert CH event data in yaml into normal tabulate formate.
+- get_cnv_exonic_size.R - a sample script to get total exonic size of the inherited deletions for a purpose of normalization.
