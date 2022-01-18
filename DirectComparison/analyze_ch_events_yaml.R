@@ -6,7 +6,7 @@ library(GenomicRanges)
 library(Repitools)
 library(yaml)
 
-setwd("/Users/faraz/Documents/Work/Workterm 5 - SickKids/CHASE/Faraz")
+setwd("/Users/faraz/Documents/Work/Workterm 5 - SickKids/CHASE Project/Faraz")
 
 Determine_CNV_MAF <- function(CNVs) {
   CNV_MAF <- pmax(CNVs$CGparentalPercFreq_50percRecipOverlap,
@@ -21,7 +21,8 @@ Determine_CNV_MAF <- function(CNVs) {
   return (CNV_MAF)
 }
 
-Get_SNVs_Parent_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_filter=1) {
+Get_SNVs_Parent_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_filter=1,
+                                       alt_base_filter_threshold = 0.9) {
   data <- yaml::yaml.load_file(file_path)
   
   childSNVs.in.maternalCNVs <- data.frame()
@@ -128,17 +129,26 @@ Get_SNVs_Parent_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_fi
     message(i)
   }
   
+  childSNVs.in.paternalCNVs <- subset(childSNVs.in.paternalCNVs, childSNVs.in.paternalCNVs$alt_fraction >= alt_base_filter_threshold)
+  childSNVs.in.maternalCNVs <- subset(childSNVs.in.maternalCNVs, childSNVs.in.maternalCNVs$alt_fraction >= alt_base_filter_threshold)
+  fatherSNVs.in.paternalCNVs <- subset(fatherSNVs.in.paternalCNVs, fatherSNVs.in.paternalCNVs$alt_fraction >= alt_base_filter_threshold)
+  motherSNVs.in.maternalCNVs <- subset(motherSNVs.in.maternalCNVs, motherSNVs.in.maternalCNVs$alt_fraction >= alt_base_filter_threshold)
+  
   return (list(childSNVs.in.paternalCNVs, 
                childSNVs.in.maternalCNVs, 
                fatherSNVs.in.paternalCNVs, 
                motherSNVs.in.maternalCNVs))
 }
 
-Get_SNVs_Sibling_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_filter=1) {
+Get_SNVs_Sibling_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_filter=1, 
+                                        alt_base_filter_threshold = 0.9) {
   data <- yaml::yaml.load_file(file_path)
   
   childSNVs_combined <- data.frame()
   SNVs_to_add <- data.frame()
+  
+  total_exonic_size = 0
+  genes_data <- data.table::fread("hg38_refGene_20200708.exon.txt", data.table = F)
   
   for(i in 1:length(data)){
     childCNVs <- data.frame(data[[i]]$CNVs) # Could be proband or unaffected sibling
@@ -152,9 +162,22 @@ Get_SNVs_Sibling_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_f
     childSNVs <- childSNVs[which(childSNVs$freq_max < SNV_freq_filter), ]
     
     if (nrow(childCNVs) > 0) {
+      
       childCNVs_g <- GRanges(childCNVs$chrAnn,
                              IRanges(childCNVs$STARTAnn,
                                      childCNVs$ENDAnn), "*")
+      
+      genes <- genes_data[genes_data$V5 %in% strsplit(paste(childCNVs$gene_symbol, collapse = "|"), "\\|")[[1]], ]
+      
+      genes.g <- GRanges(genes$V1, IRanges(genes$V2, genes$V3), "*")
+      genes.g <- GenomicRanges::reduce(genes.g)
+      
+      olap <- data.frame(findOverlaps(childCNVs_g, genes.g))
+      olap$width <- width(pintersect(childCNVs_g[olap$queryHits], genes.g[olap$subjectHits]))
+      olap <- aggregate(width ~ queryHits, olap, sum)
+      childCNVs$exonicSize <- 0
+      childCNVs$exonicSize[olap$queryHits] <- olap$width
+      total_exonic_size <- sum(childCNVs$exonicSize, total_exonic_size)
       
       if(nrow(childSNVs) > 0){
         names(childSNVs)[11] <- "SampleData"
@@ -169,12 +192,12 @@ Get_SNVs_Sibling_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_f
     message(i)
   }
   
-  # Exclude SNVs inherited from the deletion transmitting parent
+  # Exclude SNVs inherited from the deletion transmitting parent via alt_fraction column
   childSNVs_combined <- subset(childSNVs_combined, 
-                               childSNVs_combined$inheritance != tolower(childSNVs_combined$cnvInheritance))
+                               childSNVs_combined$alt_fraction >= alt_base_filter_threshold)
   
   
-  return (childSNVs_combined)
+  return (list(childSNVs_combined, total_exonic_size))
 }
 
 ##### ILMN DATA ##### (1111 CH events)
@@ -224,8 +247,13 @@ write.table(SSC_motherSNVs_in_paternalCNVs, "./SNV Data/SSC_MotherSNVs_in_Matern
 
 ##### SSC DATA - Proband vs. Unaffected Siblings ##### (X CH events)
 
-SSC_probandUNSNVs <- Get_SNVs_Sibling_Comparison("SSC_CH_Data10P_Bank.yaml", CNV_freq_filter=0.01)
-SSC_unaffectedSiblingsSNVs <- Get_SNVs_Sibling_Comparison("SSC_CH.unaffectedSiblings_Data10P_Bank.yaml", CNV_freq_filter=0.01)
+SSC_probandUN_comparison_results <- Get_SNVs_Sibling_Comparison("SSC_CH_Data10P_Bank.yaml", CNV_freq_filter=0.01)
+SSC_probandUNSNVs <- SSC_probandUN_comparison_results[[1]]
+SSC_probandUN_exonic_size <- SSC_probandUN_comparison_results[[2]]
+
+SSC_unaffectedSiblings_comparison_results <- Get_SNVs_Sibling_Comparison("SSC_CH.unaffectedSiblings_Data10P_Bank.yaml", CNV_freq_filter=0.01)
+SSC_unaffectedSiblingsSNVs <- SSC_unaffectedSiblings_comparison_results[[1]]
+SSC_unaffectedSiblings_exonic_size <- SSC_unaffectedSiblings_comparison_results[[2]]
 
 # Write SNVs to tsv
 write.table(SSC_probandUNSNVs, "./SNV Data/SSC_ProbandUNSNVs.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
@@ -317,3 +345,6 @@ SSC_SNV_sibling_comparison <- list(VariantType = c("All Variants", "Synonymous",
 
 SSC_SNV_sibling_comparison_df <- as.data.frame(SSC_SNV_sibling_comparison)
 
+SSC_SNV_sibling_comparison_df_norm <- SSC_SNV_sibling_comparison_df
+SSC_SNV_sibling_comparison_df_norm[, 2] <- SSC_SNV_sibling_comparison_df_norm[, 2]/(SSC_probandUN_exonic_size/1000000)
+SSC_SNV_sibling_comparison_df_norm[, 3] <- SSC_SNV_sibling_comparison_df_norm[, 3]/(SSC_unaffectedSiblings_exonic_size/1000000)
