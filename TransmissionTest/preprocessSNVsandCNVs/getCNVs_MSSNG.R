@@ -1,6 +1,6 @@
 library(data.table)
 
-tmp <- fread("/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/MSSNG/CNVs.ILMN/CNVs.MSSNG_ILMN.freq_10percent.HQR.tsv", data.table = F)
+tmp <- fread("/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/MSSNG/CNVs.ILMN/CNVs.MSSNG_ILMN.freq_10percent.HQR.tsv", data.table = F)
 tmp <- tmp[which(tmp$SVTYPE == "DEL" & tmp$Sample_QC == "ok" & tmp$Inheritance %in% c("Paternal", "Maternal") &
                  tmp$FILTER == "PASS"), 
            c("sample", "CHROM", "START", "END", "SVTYPE", "gene_symbol", "gene_egID", "exon_symbol", "exon_egID",
@@ -9,4 +9,4 @@ tmp <- tmp[which(tmp$SVTYPE == "DEL" & tmp$Sample_QC == "ok" & tmp$Inheritance %
              "erdsIlmXParentalPercFreq_50percRecipOverlap", "erdsIlm2ParentalPercFreq_50percRecipOverlap",
              "sscErdsPercFreq_50percRecipOverlap", "sscCnvnPercFreq_50percRecipOverlap", "Inheritance")]
 
-write.table(tmp, "../data/MSSNG.CNVs.freq.10perc.tsv", sep="\t", row.names=F, quote=F, col.names=T)
+write.table(tmp, "./MSSNG.CNVs.freq.10perc.tsv", sep="\t", row.names=F, quote=F, col.names=T)

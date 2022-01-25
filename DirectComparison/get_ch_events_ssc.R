@@ -220,7 +220,7 @@ Get_CH_Events <- function(probands, CNVdf, CNVpath, SNVfolder){
         snvout <- "Father.SNV"
       }
       
-      snvs <- fread(snvpath)[high_quality == T & freq_max <= 0.1]
+      snvs <- fread(snvpath)[high_quality == T]
       if(nrow(snvs) > 0 & nrow(CH_Data[[proband]][[cnv]]) > 0){
         cnvs.g <- GRanges(CH_Data[[proband]][[cnv]]$CHROM, IRanges(CH_Data[[proband]][[cnv]]$START, CH_Data[[proband]][[cnv]]$END), "*")
         snvs.g <- GRanges(snvs$CHROM, IRanges(snvs$POS, snvs$POS), "*")
@@ -252,7 +252,7 @@ Get_CH_Events(probands = probands_10P,
               CNVdf = CNVs_10Percent,
               CNVpath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/CNVs/CNVs.SSC.freq_10percent.HQR.tsv",
               SNVfolder = "exonic_splicing") %>%
-  write_yaml(.,"SSC_CH_Data10P_Bank.yaml")
+  write_yaml(.,"SSC_CH_Data_CNV10P_SNV.yaml")
 
 print("getting unaffected siblings data")
 
@@ -261,7 +261,7 @@ Get_CH_Events(probands = Unaffected_siblings10P,
               CNVdf = CNVs_10Percent,
               CNVpath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/CNVs/CNVs.SSC.freq_10percent.HQR.tsv",
               SNVfolder = "exonic_splicing") %>%
-  write_yaml(.,"SSC_CH.unaffectedSiblings_Data10P_Bank.yaml")
+  write_yaml(.,"SSC_CH.unaffectedSiblings_Data_CNV10P_SNV.yaml")
 
 print("Done")
 

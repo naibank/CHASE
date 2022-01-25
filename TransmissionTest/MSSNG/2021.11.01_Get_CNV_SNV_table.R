@@ -1,10 +1,28 @@
 library(data.table)
 
-ls1 <- fread("/Users/shaniawu/SickKids CHASE/2021.11.01/data/CRVs/MSSNG+SSC.ASD135_LoF.tsv")
-ls2 <- fread("/Users/shaniawu/SickKids CHASE/2021.11.01/data/CRVs/MSSNG+SSC.CNVs.tsv")
+setwd("/Users/faraz/Documents/Work/Workterm 5 - SickKids/CHASE Project/CHASE")
+
+ls1 <- fread("./CRVs/MSSNG+SSC.ASD135_LoF.tsv")
+ls2 <- fread("./CRVs/MSSNG+SSC.CNVs.tsv")
 ls_exclude <- unique(rbind(ls1, ls2))
 
-table <- fread("/Users/shaniawu/SickKids CHASE/CNV_SNV_table/CNV_SNV_table.tsv")
+setwd("/Users/faraz/Documents/Work/Workterm 5 - SickKids/CHASE Project/Faraz")
+
+table <- yaml::yaml.load_file("MSSNG_ILMN_CH_Data10P_Bank.yaml")
+
+Convert_YAML_To_Dataframe <- function(file) {
+  mother_CNVs <- data.frame()
+  father_CNVs <- data.frame()
+  child_CNVs <- data.frame()
+  child_SNVs <- data.frame()
+  for (i in 1:length(file)) {
+    row <- data.frame(file[[i]]$CNVs)
+    df <- rbind(df, row)
+  }
+  return (df)
+}
+
+table_df <- Convert_YAML_To_Dataframe(table)
 
 ## add a column to indicate the relation
 table$Relation <- NA

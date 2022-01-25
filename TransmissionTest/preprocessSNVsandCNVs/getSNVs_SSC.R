@@ -1,6 +1,6 @@
 library(data.table)
 
-path <- "/hpf/largeprojects/tcagstor/tcagstor_tmp/alex.chan/MSSNG/exonic_splicing.ILMN"
+path <- "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/exonic_splicing"
 files <- list.files(path, full.names = T)
 
 freq <- 0.1
@@ -17,10 +17,10 @@ for(i in 1:length(files)){
   snvs <- rbind(snvs, tmp)
   
   if(i %% 2000 == 0){
-    write.table(snvs, sprintf("../data/MSSNG.SNVs.freq.10perc_%s.tsv", count), sep="\t", row.names=F, quote=F, col.names=T)
+    write.table(snvs, sprintf("./SSC.SNVs.freq.10perc_%s.tsv", count), sep="\t", row.names=F, quote=F, col.names=T)
     snvs <- data.frame()
     count = count + 1
   }
 }
-write.table(snvs, sprintf("../data/MSSNG.SNVs.freq.10perc_%s.tsv", count), sep="\t", row.names=F, quote=F, col.names=T)
+write.table(snvs, sprintf("./SSC.SNVs.freq.10perc_%s.tsv", count), sep="\t", row.names=F, quote=F, col.names=T)
 

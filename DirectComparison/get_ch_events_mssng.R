@@ -322,7 +322,7 @@ Get_CH_Events <- function(probands, CNVdf, CNVpath, SNVfolder){
         snvout <- "Father.SNV"
       }
       
-      snvs <- fread(snvpath)[high_quality == T & freq_max <= 0.1]
+      snvs <- fread(snvpath)[high_quality == T]
       if(nrow(snvs) > 0 & nrow(CH_Data[[proband]][[cnv]]) > 0){
         cnvs.g <- GRanges(CH_Data[[proband]][[cnv]]$CHROM, IRanges(CH_Data[[proband]][[cnv]]$START, CH_Data[[proband]][[cnv]]$END), "*")
         snvs.g <- GRanges(snvs$CHROM, IRanges(snvs$POS, snvs$POS), "*")
@@ -360,7 +360,7 @@ Get_CH_Events(probands = probands_10P,
              CNVdf = CNVs_10Percent,
              CNVpath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/MSSNG/CNVs.ILMN/CNVs.MSSNG_ILMN.freq_10percent.HQR.tsv",
              SNVfolder = "exonic_splicing.ILMN") %>%
- write_yaml(.,"MSSNG_ILMN_CH_Data10P_Bank.yaml")
+ write_yaml(.,"MSSNG_ILMN_CH_Data_CNV10P_SNV.yaml")
 
 ## CG
 
@@ -369,7 +369,7 @@ Get_CH_Events(probands = probands_10P.CG,
               CNVdf = CNVs_10Percent.CG,
               CNVpath = "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/MSSNG/CNVs.CG/CNVs.MSSNG_CG.freq_10percent.HQR.tsv",
               SNVfolder = "exonic_splicing.CG") %>%
-  write_yaml(.,"MSSNG_CG_CH_Data10P_Bank.yaml")
+  write_yaml(.,"MSSNG_CG_CH_Data_CNV10P_SNV.yaml")
 
 print("Done")
 
