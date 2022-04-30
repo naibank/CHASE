@@ -1,8 +1,17 @@
 This is the analysis where CH events are compared directly between two groups of samples, i.e. probands vs parents, probands vs unaffected siblings, etc.
 
-Please see below for the detail of the scripts.
-- get_ch_events_mssng.R - a script to collect CH events (within deletion boundaries) in MSSNG and save the result in yaml format.
-- get_ch_events_ssc.R - a script to collect CH events (within deletion boundaries) in SSC and save the result in yaml format.
-- analyze_ch_events_yaml.R - a script to perform some analysis/comparison of CH events where yaml files are input.
-- convert_ch_events_yaml_to_tabular.R - a script to convert CH event data in yaml into normal tabulate formate.
-- get_cnv_exonic_size.R - a sample script to get total exonic size of the inherited deletions for a purpose of normalization.
+Please see below for the detail of the directories and the types of scripts they contain.
+- burden_analysis - Contains files for performing burden analysis on the data through logistic regression.
+	- burden_analysis.R - Perform burden analysis using only inherited deletions and an older model
+	- unbiased_burden_analysis.R - Perform burden analysis using all deletions and latest model
+	- unbiased_burden_analysis_SPARK.R - Perform burden analysis using all deletions on SPARK data
+	- CNV_SV_rate_comparison.R - Plot rate of CH events from CNV caller and SV caller deletions for comparison
+	- CNV_SV_rate_comparison_by_individual.R - Plot CH events by total queried exonic deletion size of each individual (also delineated by ASD status)
+	- 1000G_SNV_rate_comparison_by_delsize_individual.R - Plot CH events by total queried exonic deletion size of each individual with 1000G dataset
+	- Other scripts are for plot generation and investigating data attributes that could possibly explain unexpected results (ex. Looking at distribution of conservation score for synonymous result)
+
+- data_processing - Contains files for getting and processing most of the CH event data (deletions + SNVs) from HPC
+	- get_ch_events_xxx.R - Get CNV and SNV data from HPC from xxx dataset (ex. MSSNG)
+	- get_sv_xxx.R - Get SV and SNV data from HPC from xxx dataset (ex. MSSNG)
+	- process_ch_events_xxx.R - Process each individual's CNV and SNV data into neatly formatted data frames containing CH events from xxx dataset
+	- SPARK/ - Same processing scripts but for SPARK dataset

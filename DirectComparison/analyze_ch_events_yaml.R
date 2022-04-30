@@ -22,7 +22,29 @@ Determine_CNV_MAF <- function(CNVs) {
   return (CNV_MAF)
 }
 
-Get_SNVs_Parent_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_filter=1,
+Filter_ASD_Associated_CNVs_and_LOFs <- function(df, ds='MSSNG') {
+  ls1 <- fread("MSSNG+SSC.ASD135_LoF.tsv")
+  ls2 <- fread("MSSNG+SSC.CNVs.tsv")
+  ls_exclude <- unique(rbind(ls1, ls2))
+  
+  if (ds == "MSSNG") {
+    file <- "MSSNG_metadata.tsv"
+  }
+  else if (ds == "SSC") {
+    file <- "SSC_metadata.tsv"
+  }
+
+  full_metadata <- fread(file, data.table = F)
+  
+  familyID_exclude <- full_metadata$`Family ID`[which(full_metadata$`Sample ID` %in% ls_exclude$Sample)]
+  sampleID_exclude <- full_metadata$`Sample ID`[which(full_metadata$`Family ID` %in% familyID_exclude)]
+  
+  df <- df[which(!df$`X.Sample` %in% sampleID_exclude),]
+  
+  return (df)
+}
+
+Get_SNVs_Parent_Comparison <- function(file_path, ds = "MSSNG", CNV_freq_filter=1, SNV_freq_filter=1,
                                        alt_base_filter_threshold = 0.9) {
   data <- yaml::yaml.load_file(file_path)
   
@@ -146,6 +168,12 @@ Get_SNVs_Parent_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_fi
   fatherSNVs.in.paternalCNVs <- subset(fatherSNVs.in.paternalCNVs, fatherSNVs.in.paternalCNVs$alt_fraction >= alt_base_filter_threshold)
   motherSNVs.in.maternalCNVs <- subset(motherSNVs.in.maternalCNVs, motherSNVs.in.maternalCNVs$alt_fraction >= alt_base_filter_threshold)
   
+  # Filter ASD associated CNVs and LOFs
+  childSNVs.in.paternalCNVs <- Filter_ASD_Associated_CNVs_and_LOFs(childSNVs.in.paternalCNVs, ds)
+  childSNVs.in.maternalCNVs <- Filter_ASD_Associated_CNVs_and_LOFs(childSNVs.in.maternalCNVs, ds)
+  fatherSNVs.in.paternalCNVs <- Filter_ASD_Associated_CNVs_and_LOFs(fatherSNVs.in.paternalCNVs, ds)
+  motherSNVs.in.maternalCNVs <- Filter_ASD_Associated_CNVs_and_LOFs(motherSNVs.in.maternalCNVs, ds)
+  
   return (list(childSNVs.in.paternalCNVs, 
                childSNVs.in.maternalCNVs, 
                fatherSNVs.in.paternalCNVs, 
@@ -154,7 +182,7 @@ Get_SNVs_Parent_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_fi
                maternalCount))
 }
 
-Get_SNVs_Sibling_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_filter=1, 
+Get_SNVs_Sibling_Comparison <- function(file_path, ds = "MSSNG", CNV_freq_filter=1, SNV_freq_filter=1, 
                                         alt_base_filter_threshold = 0.9) {
   data <- yaml::yaml.load_file(file_path)
   
@@ -202,6 +230,7 @@ Get_SNVs_Sibling_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_f
         childSNVs$cnvFreq <- childCNVs$cnvFreq[olap@to]
         childSNVs$CHfreq <- childSNVs$cnvFreq * childSNVs$freq_max
         childSNVs$cnvInheritance <- childCNVs$Inheritance[olap@to]
+        childSNVs$exonicSize <- childCNVs$exonicSize[olap@to]
         childSNVs_combined <- rbind(childSNVs_combined, childSNVs)
       }
     }
@@ -211,14 +240,15 @@ Get_SNVs_Sibling_Comparison <- function(file_path, CNV_freq_filter=1, SNV_freq_f
   # Exclude SNVs inherited from the deletion transmitting parent via alt_fraction column
   childSNVs_combined <- subset(childSNVs_combined, 
                                childSNVs_combined$alt_fraction >= alt_base_filter_threshold)
-  
+  # Filter ASD associated CNVs and LOFs
+  childSNVs_combined <- Filter_ASD_Associated_CNVs_and_LOFs(childSNVs_combined, ds)
   
   return (list(childSNVs_combined, total_exonic_size))
 }
 
 ##### ILMN DATA ##### (1111 CH events)
 
-ILMN_SNVs_data <- Get_SNVs_Parent_Comparison("MSSNG_ILMN_CH_Data_CNV10P_SNV.yaml", CNV_freq_filter=0.01, SNV_freq_filter=1)
+ILMN_SNVs_data <- Get_SNVs_Parent_Comparison("MSSNG_ILMN_CH_Data_CNV10P_SNV.yaml", ds="MSSNG", CNV_freq_filter=0.01, SNV_freq_filter=1)
 
 ILMN_probandSNVs_in_paternalCNVs <- ILMN_SNVs_data[[1]]
 ILMN_probandSNVs_in_maternalCNVs <- ILMN_SNVs_data[[2]]
@@ -235,7 +265,7 @@ write.table(ILMN_motherSNVs_in_maternalCNVs, "../DT/ILMN_MotherSNVs_in_MaternalC
 
 ##### CG DATA ##### (120 CH events)
 
-CG_SNVs_data <- Get_SNVs_Parent_Comparison("MSSNG_CG_CH_Data_CNV10P_SNV.yaml", CNV_freq_filter=0.01, SNV_freq_filter=1)
+CG_SNVs_data <- Get_SNVs_Parent_Comparison("MSSNG_CG_CH_Data_CNV10P_SNV.yaml", ds="MSSNG", CNV_freq_filter=0.01, SNV_freq_filter=1)
 
 CG_probandSNVs_in_paternalCNVs <- CG_SNVs_data[[1]]
 CG_probandSNVs_in_paternalCNVs[which(CG_probandSNVs_in_paternalCNVs$X.Sample == "-717640"), "X.Sample"] <- "5-0003-003" # Sample w error in ID 
@@ -253,7 +283,7 @@ write.table(CG_motherSNVs_in_maternalCNVs, "../DT/CG_MotherSNVs_in_MaternalCNVs.
 
 ##### SSC DATA ##### (1510 CH events)
 
-SSC_SNVs_data <- Get_SNVs_Parent_Comparison("SSC_CH_Data_CNV10P_SNV.yaml", CNV_freq_filter=0.01, SNV_freq_filter=1)
+SSC_SNVs_data <- Get_SNVs_Parent_Comparison("SSC_CH_Data_CNV10P_SNV.yaml", ds="SSC", CNV_freq_filter=0.01, SNV_freq_filter=1)
 
 SSC_probandSNVs_in_paternalCNVs <- SSC_SNVs_data[[1]]
 SSC_probandSNVs_in_maternalCNVs <- SSC_SNVs_data[[2]]
@@ -268,13 +298,39 @@ write.table(SSC_probandSNVs_in_maternalCNVs, "../DT/SSC_ProbandSNVs_in_MaternalC
 write.table(SSC_fatherSNVs_in_paternalCNVs, "../DT/SSC_FatherSNVs_in_PaternalCNVs.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
 write.table(SSC_motherSNVs_in_maternalCNVs, "../DT/SSC_MotherSNVs_in_MaternalCNVs.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
 
-##### SSC DATA - Proband vs. Unaffected Siblings ##### (X CH events)
+##### SSC DATA - Only Unaffected Sibling (for burden analysis) #####
 
-SSC_probandUN_comparison_results <- Get_SNVs_Sibling_Comparison("SSC_CH_Data_CNV10P_SNV.yaml", CNV_freq_filter=0.01, SNV_freq_filter=1)
+# SSC_unaffectedSib_SNVs_data <- Get_SNVs_Parent_Comparison("SSC_CH.unaffectedSiblings_Data_CNV10P_SNV.yaml", ds="SSC", CNV_freq_filter=0.01, SNV_freq_filter=1)
+# 
+# SSC_unaffectedSibSNVs_in_paternalCNVs <- SSC_unaffectedSib_SNVs_data[[1]]
+# SSC_unaffectedSibSNVs_in_maternalCNVs <- SSC_unaffectedSib_SNVs_data[[2]]
+# SSC_fatherUSSNVs_in_paternalCNVs <- SSC_unaffectedSib_SNVs_data[[3]]
+# SSC_motherUSSNVs_in_maternalCNVs <- SSC_unaffectedSib_SNVs_data[[4]]
+# SSC_paternalUSCNV_inh_count <- SSC_unaffectedSib_SNVs_data[[5]]
+# SSC_maternalUSCNV_inh_count <- SSC_unaffectedSib_SNVs_data[[6]]
+# 
+# # Write SNVs to tsv
+# write.table(SSC_unaffectedSibSNVs_in_paternalCNVs, "../DT/SSC_unaffectedSibSNVs_in_PaternalCNVs.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+# write.table(SSC_unaffectedSibSNVs_in_maternalCNVs, "../DT/SSC_unaffectedSibSNVs_in_MaternalCNVs.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+# write.table(SSC_fatherUSSNVs_in_paternalCNVs, "../DT/SSC_FatherUSSNVs_in_PaternalCNVs.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+# write.table(SSC_motherUSSNVs_in_maternalCNVs, "../DT/SSC_MotherUSSNVs_in_MaternalCNVs.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+CH_Freq_Threshold <- 0.001
+SSC_unaffectedSibSNVs_in_paternalCNVs <- subset(SSC_unaffectedSibSNVs_in_paternalCNVs, SSC_unaffectedSibSNVs_in_paternalCNVs$CHfreq <= CH_Freq_Threshold)
+SSC_unaffectedSibSNVs_in_maternalCNVs <- subset(SSC_unaffectedSibSNVs_in_maternalCNVs, SSC_unaffectedSibSNVs_in_maternalCNVs$CHfreq <= CH_Freq_Threshold)
+SSC_fatherUSSNVs_in_paternalCNVs <- subset(SSC_fatherUSSNVs_in_paternalCNVs, SSC_fatherUSSNVs_in_paternalCNVs$CHfreq <= CH_Freq_Threshold)
+SSC_motherUSSNVs_in_maternalCNVs <- subset(SSC_motherUSSNVs_in_maternalCNVs, SSC_motherUSSNVs_in_maternalCNVs$CHfreq <= CH_Freq_Threshold)
+write.table(SSC_unaffectedSibSNVs_in_paternalCNVs, "../DT/SSC_unaffectedSibSNVs_in_PaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+write.table(SSC_unaffectedSibSNVs_in_maternalCNVs, "../DT/SSC_unaffectedSibSNVs_in_MaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+write.table(SSC_fatherUSSNVs_in_paternalCNVs, "../DT/SSC_FatherUSSNVs_in_PaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+write.table(SSC_motherUSSNVs_in_maternalCNVs, "../DT/SSC_MotherUSSNVs_in_MaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+
+##### SSC DATA - Proband vs. Unaffected Siblings ##### 
+
+SSC_probandUN_comparison_results <- Get_SNVs_Sibling_Comparison("SSC_CH_Data_CNV10P_SNV.yaml", ds="SSC", CNV_freq_filter=0.01, SNV_freq_filter=1)
 SSC_probandUNSNVs <- SSC_probandUN_comparison_results[[1]]
 SSC_probandUN_exonic_size <- SSC_probandUN_comparison_results[[2]]
 
-SSC_unaffectedSiblings_comparison_results <- Get_SNVs_Sibling_Comparison("SSC_CH.unaffectedSiblings_Data_CNV10P_SNV.yaml", CNV_freq_filter=0.01, SNV_freq_filter=1)
+SSC_unaffectedSiblings_comparison_results <- Get_SNVs_Sibling_Comparison("SSC_CH.unaffectedSiblings_Data_CNV10P_SNV.yaml", ds="SSC", CNV_freq_filter=0.01, SNV_freq_filter=1)
 SSC_unaffectedSiblingsSNVs <- SSC_unaffectedSiblings_comparison_results[[1]]
 SSC_unaffectedSiblings_exonic_size <- SSC_unaffectedSiblings_comparison_results[[2]]
 
@@ -304,6 +360,26 @@ if (restrict) {
   
   SSC_probandUNSNVs <- subset(SSC_probandUNSNVs, SSC_probandUNSNVs$CHfreq <= CH_Freq_Threshold)
   SSC_unaffectedSiblingsSNVs <- subset(SSC_unaffectedSiblingsSNVs, SSC_unaffectedSiblingsSNVs$CHfreq <= CH_Freq_Threshold)
+  
+  # Write SNVs to tsv
+  write.table(ILMN_probandSNVs_in_paternalCNVs, "../DT/ILMN_ProbandSNVs_in_PaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(ILMN_probandSNVs_in_maternalCNVs, "../DT/ILMN_ProbandSNVs_in_MaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(ILMN_fatherSNVs_in_paternalCNVs, "../DT/ILMN_FatherSNVs_in_PaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(ILMN_motherSNVs_in_maternalCNVs, "../DT/ILMN_MotherSNVs_in_MaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  
+  write.table(CG_probandSNVs_in_paternalCNVs, "../DT/CG_ProbandSNVs_in_PaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(CG_probandSNVs_in_maternalCNVs, "../DT/CG_ProbandSNVs_in_MaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(CG_fatherSNVs_in_paternalCNVs, "../DT/CG_FatherSNVs_in_PaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(CG_motherSNVs_in_maternalCNVs, "../DT/CG_MotherSNVs_in_MaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  
+  write.table(SSC_probandSNVs_in_paternalCNVs, "../DT/SSC_ProbandSNVs_in_PaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(SSC_probandSNVs_in_maternalCNVs, "../DT/SSC_ProbandSNVs_in_MaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(SSC_fatherSNVs_in_paternalCNVs, "../DT/SSC_FatherSNVs_in_PaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(SSC_motherSNVs_in_maternalCNVs, "../DT/SSC_MotherSNVs_in_MaternalCNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  
+  write.table(SSC_probandUNSNVs, "../DT/SSC_ProbandUNSNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  write.table(SSC_unaffectedSiblingsSNVs, "../DT/SSC_UnaffectedSiblingsSNVs_01CHfreq.tsv", sep = "\t", row.names = F, quote = F, col.names = T)
+  
 }
 ###########################################################################################################################################################
 
@@ -630,10 +706,6 @@ SSC_SNV_sibling_comparison <- list(VariantType = c("All Variants", "Synonymous",
 
 SSC_SNV_sibling_comparison_df <- as.data.frame(SSC_SNV_sibling_comparison)
 
-SSC_SNV_sibling_comparison_df_norm <- SSC_SNV_sibling_comparison_df
-SSC_SNV_sibling_comparison_df_norm[, 2] <- SSC_SNV_sibling_comparison_df_norm[, 2]/(SSC_probandUN_exonic_size/1000000)
-SSC_SNV_sibling_comparison_df_norm[, 3] <- SSC_SNV_sibling_comparison_df_norm[, 3]/(SSC_unaffectedSiblings_exonic_size/1000000)
-
 
 SSC_SNV_sibling_indiv_count_comparison <- list(VariantType = c("All Variants", "Synonymous", "Missense", "LoF"),
                                    proband_del = c(SSC_probandUN_counts$all, SSC_probandUN_counts$syn, SSC_probandUN_counts$mis, SSC_probandUN_counts$lof),
@@ -641,3 +713,30 @@ SSC_SNV_sibling_indiv_count_comparison <- list(VariantType = c("All Variants", "
 
 SSC_SNV_sibling_indiv_count_comparison_df <- as.data.frame(SSC_SNV_sibling_indiv_count_comparison)
 
+# Normalize proband-sibling comparisons
+# By exonic size
+SSC_SNV_sibling_comparison_df_norm <- SSC_SNV_sibling_comparison_df
+SSC_SNV_sibling_comparison_df_norm[, 2] <- SSC_SNV_sibling_comparison_df_norm[, 2]/(SSC_probandUN_exonic_size/1000000)
+SSC_SNV_sibling_comparison_df_norm[, 3] <- SSC_SNV_sibling_comparison_df_norm[, 3]/(SSC_unaffectedSiblings_exonic_size/1000000)
+
+# By total probands-unaffected siblings
+SSC_metadata <- as.data.frame(fread("SSC_metadata.tsv"))
+ls1 <- fread("MSSNG+SSC.ASD135_LoF.tsv")
+ls2 <- fread("MSSNG+SSC.CNVs.tsv")
+ls_exclude <- unique(rbind(ls1, ls2))
+familyID_exclude <- SSC_metadata$`Family ID`[which(SSC_metadata$`Sample ID` %in% ls_exclude$Sample)]
+sampleID_exclude <- SSC_metadata$`Sample ID`[which(SSC_metadata$`Family ID` %in% familyID_exclude)]
+SSC_metadata <- SSC_metadata[which(!SSC_metadata$`Sample ID` %in% sampleID_exclude),]
+
+total_SSC_proband_count <- length(unique(SSC_metadata$`Sample ID`[which(SSC_metadata$Relation == 'proband')]))
+total_SSC_unaffected_sibling_count <- length(unique(SSC_metadata$`Sample ID`[which(SSC_metadata$Relation == 'unaffected sibling')]))
+SSC_SNV_sibling_comparison_df_norm_tot <- SSC_SNV_sibling_comparison_df
+SSC_SNV_sibling_comparison_df_norm_tot[, 2] <- SSC_SNV_sibling_comparison_df_norm_tot[, 2]/(total_SSC_proband_count)
+SSC_SNV_sibling_comparison_df_norm_tot[, 3] <- SSC_SNV_sibling_comparison_df_norm_tot[, 3]/(total_SSC_unaffected_sibling_count)
+
+# By total probands-unaffected sibilngs with inherited CNV (deletion)
+total_SSC_proband_inhcnv_count <- sum(SSC_SNV_sibling_indiv_count_comparison_df[, 2])
+total_SSC_unaffected_sibling_inhcnv_count <- sum(SSC_SNV_sibling_indiv_count_comparison_df[, 3])
+SSC_SNV_sibling_comparison_df_norm_totinh <- SSC_SNV_sibling_comparison_df
+SSC_SNV_sibling_comparison_df_norm_totinh[, 2] <- SSC_SNV_sibling_comparison_df_norm_totinh[, 2]/(total_SSC_proband_inhcnv_count)
+SSC_SNV_sibling_comparison_df_norm_totinh[, 3] <- SSC_SNV_sibling_comparison_df_norm_totinh[, 3]/(total_SSC_unaffected_sibling_inhcnv_count)

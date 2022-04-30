@@ -1,7 +1,8 @@
 library(data.table)
 library(ggplot2)
+setwd("/Users/faraz/Documents/Work/Workterm 5 - SickKids/CHASE Project/Faraz/Data")
 
-metadata <- fread("/Users/shaniawu/Desktop/SickKids (F21 Coop)/CHASE (Bioinformatics Project)/2021.10.06/data/MSSNG_metadata.tsv")
+metadata <- fread("MSSNG_metadata.tsv")
 
 ## find which IDs are parental and which are proband
 meta_parentsID <- metadata$`Sample ID`[which(metadata$Relation == "mother" | metadata$Relation == "father")]
@@ -11,7 +12,7 @@ lof <- read.delim("/Users/shaniawu/SickKids CHASE/gnomad.v2.1.1.lof_metrics.by_g
 res.out <- data.frame()
 ## separate table of probands and parents
 for(freq in c(0.1, 0.05, 0.01, 0.001)){
-  table <- fread("/Users/shaniawu/SickKids CHASE/CNV_SNV_table.tsv")
+  table <- fread("MSSNG_CNV_SNV_table.tsv")
   table <- table[which(!table$CHROM == "chrX")]
   table <- table[table$freq_max < freq, ]
   

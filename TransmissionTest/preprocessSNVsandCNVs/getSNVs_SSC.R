@@ -2,25 +2,23 @@ library(data.table)
 
 path <- "/hpf/largeprojects/tcagstor/tcagstor_tmp/farazali/SSC/exonic_splicing"
 files <- list.files(path, full.names = T)
-
-freq <- 0.1
-count <- 1
+total <- 2111
 snvs <- data.frame()
-for(i in 1:length(files)){
-  message(sprintf("%s out of %s total variants = %s", i, length(files), nrow(snvs)))
+for(i in 1281:total){
+  message(sprintf("%s out of %s total variants = %s", i, total, nrow(snvs)))
   tmp <- fread(files[i], data.table = F)
   tmp$"#Sample" <- as.character(tmp$"#Sample")
-  tmp <- tmp[which(tmp$high_quality == TRUE & tmp$freq_max <= freq), 
+  tmp <- tmp[which(tmp$high_quality == TRUE), 
              c("#Sample", "CHROM", "POS", "#id", "typeseq_priority", "effect_priority", "gene_symbol", "entrez_id", 
-               "gene_type", "freq_max", "OZYG", "damaging_missense_count", "inheritance", "high_confidence_denovo")]
+               "gene_type", "freq_max", "OZYG", "damaging_missense_count", "inheritance", "high_confidence_denovo",
+               "gnomAD_pRec", "gnomAD_oe_lof_upper")]
   tmp$freq_max <- round(tmp$freq_max, digits = 3)
   snvs <- rbind(snvs, tmp)
   
-  if(i %% 2000 == 0){
-    write.table(snvs, sprintf("./SSC.SNVs.freq.10perc_%s.tsv", count), sep="\t", row.names=F, quote=F, col.names=T)
+  if(nrow(snvs) > 10000000){
+    write.table(snvs, sprintf("./SSC.SNVs.freq._%s.tsv", i), sep="\t", row.names=F, quote=F, col.names=T)
     snvs <- data.frame()
-    count = count + 1
   }
 }
-write.table(snvs, sprintf("./SSC.SNVs.freq.10perc_%s.tsv", count), sep="\t", row.names=F, quote=F, col.names=T)
+write.table(snvs, sprintf("./SSC.SNVs.freq._%s.tsv", total), sep="\t", row.names=F, quote=F, col.names=T)
 
