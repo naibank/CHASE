@@ -363,18 +363,18 @@ syn.MSSNG_SSC_CH_hits_less75kb <- syn.MSSNG_SSC_CH_hits[(which(syn.MSSNG_SSC_CH_
 Get_CH_DelSize_Plots(syn.MSSNG_SSC_CH_hits_less75kb, "MSSNG+SSC_syn_<75kb")
 
 
-# ## MSSNG+SSC combined with pRec > 0.9 filter ####
-# MSSNG_CH_hits_pRec <- Get_CH_hit_By_Individual_ExonicSize(MSSNG_parent_proband_proc_SNVs,
-#                                                           MSSNG_parent_proband_all_ExonicSizes,
-#                                                           MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs, 
-#                                                           filter_SNV = T) # filters SNVs for 
-# SSC_CH_hits_pRec <- Get_CH_hit_By_Individual_ExonicSize(SSC_parent_proband_proc_SNVs, 
-#                                                         SSC_parent_proband_all_ExonicSizes,
-#                                                         SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs,
-#                                                         filter_SNV = T)
-# MSSNG_SSC_CH_hits_pRec <- rbind(MSSNG_CH_hits_pRec, SSC_CH_hits_pRec)
-# Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_pRec, "MSSNG+SSC_pRec0.9")
-# 
+## MSSNG+SSC combined with pRec > 0.9 filter ####
+MSSNG_CH_hits_pRec <- Get_CH_hit_By_Individual_ExonicSize(MSSNG_parent_proband_proc_SNVs,
+                                                          MSSNG_parent_proband_all_ExonicSizes,
+                                                          MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs,
+                                                          filter_SNV = T) # filters SNVs for pRec
+SSC_CH_hits_pRec <- Get_CH_hit_By_Individual_ExonicSize(SSC_parent_proband_proc_SNVs,
+                                                        SSC_parent_proband_all_ExonicSizes,
+                                                        SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs,
+                                                        filter_SNV = T)
+MSSNG_SSC_CH_hits_pRec <- rbind(MSSNG_CH_hits_pRec, SSC_CH_hits_pRec)
+Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_pRec, "MSSNG+SSC_pRec0.9")
+
 # MSSNG_SSC_CH_hits_pRec_less75kb <- MSSNG_SSC_CH_hits_pRec[(which(MSSNG_SSC_CH_hits_pRec$exSize <= 75000)),] # restrict del size to < 75 kb
 # Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_pRec_less75kb, "MSSNG+SSC_pRec0.9_<75kb")
 
@@ -485,8 +485,8 @@ write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_all_fisher
 
 
 # #### MSSNG+SSC pRec > 0.9
-# MSSNG_SSC_pRec_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_pRec, MSSNG_SSC_CH_hits_pRec)
-# # write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
+MSSNG_SSC_pRec_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_pRec, MSSNG_SSC_CH_hits_pRec)
+write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_CH_hits_pRec_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
 
 
 ## MSSNG+SSC nonsyn
