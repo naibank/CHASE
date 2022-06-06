@@ -367,7 +367,7 @@ Get_CH_DelSize_Plots(syn.MSSNG_SSC_CH_hits_less75kb, "MSSNG+SSC_syn_<75kb")
 MSSNG_CH_hits_pRec <- Get_CH_hit_By_Individual_ExonicSize(MSSNG_parent_proband_proc_SNVs,
                                                           MSSNG_parent_proband_all_ExonicSizes,
                                                           MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs,
-                                                          filter_SNV = T) # filters SNVs for pRec
+                                                          filter_SNV = T) 
 SSC_CH_hits_pRec <- Get_CH_hit_By_Individual_ExonicSize(SSC_parent_proband_proc_SNVs,
                                                         SSC_parent_proband_all_ExonicSizes,
                                                         SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs,
@@ -383,13 +383,13 @@ Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_pRec, "MSSNG+SSC_pRec0.9")
 ##############################################################################################################################################################################################################################################
 #### Fisher's Exact Tests ####
 
-Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F) {
+Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F, pRec_size_bins = F) {
   ## Returns Fisher's exact test results as a dataframe, given a dataframe of CH hits and exonic sizes
   ## CH_hits_df: all CH hits 
   ## CH_hits_df_type: target type (nonsyn, syn) of CH hits
   
   ## All del sizes
-  if (size_bin == F){ 
+  if (size_bin == F & pRec_size_bins == F){ 
     ## probands
     CH_hits_probands_target <- CH_hits_df_type[which(CH_hits_df_type$Relation == 'Proband'),]
     ## controls (father & mother)
@@ -404,7 +404,7 @@ Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F) {
     # control_resi <- CH_hits_controls_target$CH_hit - ((sum(CH_hits_df_type$CH_hit)/sum(CH_hits_df$exSize)) * CH_hits_controls_target$exSize)
   }
   
-  ## Different exonic deletion size bins
+  ## Different exonic deletion size bins (non-pRec size bins)
   if (!size_bin == F){
     if (size_bin == "0-1kb"){
       CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & CH_hits_df_type$exSize <= 1000,]
@@ -431,6 +431,48 @@ Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F) {
     if (size_bin == "10kb+"){
       CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & CH_hits_df_type$exSize > 10000,]
       CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & CH_hits_df_type$exSize > 10000,]
+    }
+    lm.model <- lm(CH_hit ~ exSize, CH_hits_df_type)
+    intercept <- lm.model$coefficients[1]
+    slope <- lm.model$coefficients[2]
+    proband_resi <- CH_hits_probands_target$CH_hit - ((slope * CH_hits_probands_target$exSize) + intercept)
+    control_resi <- CH_hits_controls_target$CH_hit - ((slope * CH_hits_controls_target$exSize) + intercept)
+    # proband_resi <- CH_hits_probands_target$CH_hit - ((sum(CH_hits_df$CH_hit)/sum(CH_hits_df$exSize)) * CH_hits_probands_target$exSize)
+    # control_resi <- CH_hits_controls_target$CH_hit - ((sum(CH_hits_df$CH_hit)/sum(CH_hits_df$exSize)) * CH_hits_controls_target$exSize)
+  }
+  ## Different exonic deletion size bins (pRec size bins)
+  if (!pRec_size_bins == F){
+    if (pRec_size_bins == "0-1kb"){
+      CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & CH_hits_df_type$exSize <= 1000,]
+      CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & CH_hits_df_type$exSize <= 1000,]
+    }
+    if (pRec_size_bins == "1-5kb"){
+      CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & 
+                                                   (CH_hits_df_type$exSize > 1000 & CH_hits_df_type$exSize <= 5000),]
+      CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & 
+                                                   (CH_hits_df_type$exSize > 1000 & CH_hits_df_type$exSize <= 5000),]
+    }
+    if (pRec_size_bins == "5-10kb"){
+      CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & 
+                                                   (CH_hits_df_type$exSize > 5000 & CH_hits_df_type$exSize <= 10000),]
+      CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & 
+                                                   (CH_hits_df_type$exSize > 5000 & CH_hits_df_type$exSize <= 10000),]
+    }
+    if (pRec_size_bins == "10-20kb"){
+      CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & 
+                                                   (CH_hits_df_type$exSize > 10000 & CH_hits_df_type$exSize <= 20000),]
+      CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & 
+                                                   (CH_hits_df_type$exSize > 10000 & CH_hits_df_type$exSize <= 20000),]
+    }
+    if (pRec_size_bins == "20-50kb"){
+      CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & 
+                                                   (CH_hits_df_type$exSize > 20000 & CH_hits_df_type$exSize <= 50000),]
+      CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & 
+                                                   (CH_hits_df_type$exSize > 20000 & CH_hits_df_type$exSize <= 50000),]
+    }
+    if (pRec_size_bins == "50kb+"){
+      CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & CH_hits_df_type$exSize > 50000,]
+      CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & CH_hits_df_type$exSize > 50000,]
     }
     lm.model <- lm(CH_hit ~ exSize, CH_hits_df_type)
     intercept <- lm.model$coefficients[1]
@@ -467,7 +509,7 @@ Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F) {
   
   return(case_control_fisher_res.df)
   
-  file.path <- sprintf("./CH_count_del_size/data/%s.%s.fisher.tsv", CH_hits_df_type, size_bin)
+  file.path <- sprintf("./CH_count_del_size/data/%s.%s.fisher.tsv", CH_hits_df_type, pRec_size_bins)
   # write.csv(case_control_fisher_res.df, file.path)
 }
 
@@ -483,12 +525,6 @@ write.table(SSC_all_fisher, "./CH_count_del_size/data/SSC_all_fisher.tsv",  sep=
 MSSNG_SSC_all_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, MSSNG_SSC_CH_hits_nofilt)
 write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
 
-
-# #### MSSNG+SSC pRec > 0.9
-MSSNG_SSC_pRec_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_pRec, MSSNG_SSC_CH_hits_pRec)
-write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_CH_hits_pRec_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
-
-
 ## MSSNG+SSC nonsyn
 MSSNG_SSC_nonsyn_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, nonsyn.MSSNG_SSC_CH_hits)
 write.table(MSSNG_SSC_nonsyn_fisher, "./CH_count_del_size/data/MSSNG_SSC_nonsyn_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
@@ -498,27 +534,44 @@ write.table(MSSNG_SSC_nonsyn_fisher, "./CH_count_del_size/data/MSSNG_SSC_nonsyn_
 MSSNG_SSC_syn_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, syn.MSSNG_SSC_CH_hits)
 write.table(MSSNG_SSC_syn_fisher, "./CH_count_del_size/data/MSSNG_SSC_syn_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
 
+#### MSSNG+SSC pRec > 0.9
+# MSSNG_SSC_pRec_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_pRec, MSSNG_SSC_CH_hits_pRec, pRec_size_bins = T)
+# write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
 
 
 #### Fisher's Test for Exonic Del Size Bins ####
   
-Get_Fisher_Res_SizeBins <- function(CH_hits_df, name){
+Get_Fisher_Res_SizeBins <- function(CH_hits_df, name, pRec_size_bins = F){
   ## Writes a table of Fishers test results for 5 exonic deletion size bins under name
   fisher.res.comb <- data.frame()
-  for (size_bin in c("0-1kb", "1-2kb", "2-5kb", "5-10kb", "10kb+")){
-    fisher.res <- Get_Fisher_Res(CH_hits_df, CH_hits_df, size_bin = size_bin)
-    fisher.res <- cbind(size.bin = size_bin, fisher.res)
-    fisher.res.comb <- rbind(fisher.res.comb, fisher.res)
+  if (pRec_size_bins == F){
+    for (size_bin in c("0-1kb", "1-2kb", "2-5kb", "5-10kb", "10kb+")){
+      fisher.res <- Get_Fisher_Res(CH_hits_df, CH_hits_df, size_bin = size_bin)
+      fisher.res <- cbind(size.bin = size_bin, fisher.res)
+      fisher.res.comb <- rbind(fisher.res.comb, fisher.res)
+      
+      file.path <- sprintf("./CH_count_del_size/data/%s_sizes_fisher.tsv", name)
+      write.table(fisher.res.comb, file.path, sep="\t", row.names=F, quote=F, col.names=T)
+    }
   }
-  file.path <- sprintf("./CH_count_del_size/data/%s_sizes_fisher.tsv", name)
-  # return(fisher.res.comb)
-  write.table(fisher.res.comb, file.path, sep="\t", row.names=F, quote=F, col.names=T)
+  if (pRec_size_bins == T){
+    for (size_bin in c("0-1kb", "1-5kb", "5-10kb", "10-20kb", "20-50kb", "50kb+")){
+      fisher.res <- Get_Fisher_Res(CH_hits_df, CH_hits_df, pRec_size_bins = size_bin)
+      fisher.res <- cbind(size.bin = size_bin, fisher.res)
+      fisher.res.comb <- rbind(fisher.res.comb, fisher.res)
+      
+      file.path <- sprintf("./CH_count_del_size/data/%s_sizes_fisher.tsv", name)
+      write.table(fisher.res.comb, file.path, sep="\t", row.names=F, quote=F, col.names=T)
+    }
+  }
 }
 
 ## MSSNG + SSC
 MSSNG_SSC_all_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_SSC_CH_hits_nofilt, "MSSNG.SSC.all.nofilt")
 MSSNG_SSC_nonsyn_fisher_sizes <- Get_Fisher_Res_SizeBins(nonsyn.MSSNG_SSC_CH_hits, "MSSNG.SSC.nonsyn.nofilt")
 MSSNG_SSC_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.MSSNG_SSC_CH_hits, "MSSNG.SSC.syn.nofilt")
+# pRec > 0.9
+MSSNG_SSC_pRec_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_SSC_CH_hits_pRec, "MSSNG.SSC.pRec", pRec_size_bins = T) 
 
 ## MSSNG 
 MSSNG_all_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_CH_hits_nofilt, "MSSNG.all.nofilt")
@@ -529,6 +582,9 @@ MSSNG_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.MSSNG_CH_hits, "MSSNG.syn.
 SSC_all_fisher_sizes <- Get_Fisher_Res_SizeBins(SSC_CH_hits_nofilt, "SSC.all.nofilt")
 MSSNG_SSC_nonsyn_fisher_sizes <- Get_Fisher_Res_SizeBins(nonsyn.SSC_CH_hits, "SSC.nonsyn.nofilt")
 MSSNG_SSC_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.SSC_CH_hits, "SSC.syn.nofilt")
+
+
+
 
 
 
