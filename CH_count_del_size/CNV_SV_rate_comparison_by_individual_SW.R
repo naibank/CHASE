@@ -213,7 +213,7 @@ Get_CH_hit_By_Individual_ExonicSize <- function(SNVs,
                                                 filter_SNV = T) {
   ## returns df with two cols: CH hit count and exonic size 
   if (filter_SNV) {
-    SNVs <- SNVs[which(SNVs$gnomAD_pRec >= 0.9 & SNVs$gnomAD_oe_lof_upper >= 0.35),] # changed from Faraz
+    SNVs <- SNVs[which(SNVs$gnomAD_pRec >= 0.9 & SNVs$gnomAD_oe_lof_upper >= 0.35),] 
   }
 
   df <- exonic_sizes %>% group_by(Sample.ID) # groups exonic sizes by sampleID
@@ -240,15 +240,17 @@ Get_CH_hit_By_Individual_ExonicSize <- function(SNVs,
 }
 
 #####################################################################################################################################################################################################################
-## Get plots 
+### Get plots #######
 
 Get_CH_DelSize_Plots <- function(CH_hits_df, title){
   ## Saves no. CH events vs. exonic del size plot for CH_hits_df 
-  
+
+  controls.only <- CH_hits_df[which(!CH_hits_df$Relation == "Proband"),]
+    
   ggplot(data=CH_hits_df, aes(x=exSize, y=CH_hit, group=1)) +
     geom_point(aes(color=Relation)) +
-    geom_smooth(method='lm') +
-    geom_abline(slope=sum(CH_hits_df$CH_hit)/sum(CH_hits_df$exSize)) +
+    geom_smooth(data=controls.only, method='lm') +
+    geom_abline(slope=sum(controls.only$CH_hit)/sum(controls.only$exSize)) +
     theme(axis.text.x=element_text(angle=90, hjust=1)) + 
     labs(y='No. of CH Events', x='Total deleted exonic size (bp)') +
     ggtitle(sprintf("%s- No. CH Events v. Exonic Del Size", title)) 
@@ -257,124 +259,143 @@ Get_CH_DelSize_Plots <- function(CH_hits_df, title){
 }
 
 
-#### MSSNG ####
+
+#### MSSNG 
 MSSNG_CH_hits_nofilt <- Get_CH_hit_By_Individual_ExonicSize(MSSNG_parent_proband_proc_SNVs,
                                                             MSSNG_parent_proband_all_ExonicSizes,
                                                             MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs,
                                                             filter_SNV = F)
-Get_CH_DelSize_Plots(MSSNG_CH_hits_nofilt, "MSSNG")
+# Get_CH_DelSize_Plots(MSSNG_CH_hits_nofilt, "MSSNG")
+# 
+# MSSNG_CH_hits_nofilt_less75kb <- MSSNG_CH_hits_nofilt[(which(MSSNG_CH_hits_nofilt$exSize <= 75000)),] # restrict del size to < 75 kb
+# Get_CH_DelSize_Plots(MSSNG_CH_hits_nofilt_less75kb, "MSSNG_<75kb")
+# 
+# MSSNG_CH_hits_nofilt_less20kb <- MSSNG_CH_hits_nofilt[(which(MSSNG_CH_hits_nofilt$exSize <= 20000)),] # restrict del size to < 20 kb
+# Get_CH_DelSize_Plots(MSSNG_CH_hits_nofilt_less20kb, "MSSNG_<20kb")
+# 
+# MSSNG_CH_hits_nofilt_less5kb <- MSSNG_CH_hits_nofilt[(which(MSSNG_CH_hits_nofilt$exSize <= 5000)),] # restrict del size to < 5 kb
+# Get_CH_DelSize_Plots(MSSNG_CH_hits_nofilt_less5kb, "MSSNG_<5kb")
+# 
+# MSSNG_CH_hits_nofilt_less2kb <- MSSNG_CH_hits_nofilt[(which(MSSNG_CH_hits_nofilt$exSize <= 2000)),] # restrict del size to < 2 kb
+# Get_CH_DelSize_Plots(MSSNG_CH_hits_nofilt_less2kb, "MSSNG_<2kb")
+# 
+# MSSNG_CH_hits_nofilt_less1kb <- MSSNG_CH_hits_nofilt[(which(MSSNG_CH_hits_nofilt$exSize <= 1000)),] # restrict del size to < 1 kb
+# Get_CH_DelSize_Plots(MSSNG_CH_hits_nofilt_less1kb, "MSSNG_<1kb")
 
-MSSNG_CH_hits_nofilt_less75kb <- MSSNG_CH_hits_nofilt[(which(MSSNG_CH_hits_nofilt$exSize <= 75000)),] # restrict del size to < 75 kb
-Get_CH_DelSize_Plots(MSSNG_CH_hits_nofilt_less75kb, "MSSNG_<75kb")
 
-## Plot by variant type (effect_priority) - MSSNG
-# MSSNG nonsynonymous
+# 
+# ### Plot by variant type (effect_priority) - MSSNG 
+# # MSSNG nonsynonymous
 nonsyn.MSSNG.SNVs <- MSSNG_parent_proband_proc_SNVs[which(MSSNG_parent_proband_proc_SNVs$effect_priority == "nonsynonymous SNV"),]
-nonsyn.MSSNG_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(nonsyn.MSSNG.SNVs, MSSNG_parent_proband_all_ExonicSizes, 
-                                                            MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs, 
+nonsyn.MSSNG_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(nonsyn.MSSNG.SNVs, MSSNG_parent_proband_all_ExonicSizes,
+                                                            MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs,
                                                             filter_SNV = F)
-Get_CH_DelSize_Plots(nonsyn.MSSNG_CH_hits, "MSSNG_nonsyn")
-
-nonsyn.MSSNG_CH_hit_less75kb <- nonsyn.MSSNG_CH_hits[(which(nonsyn.MSSNG_CH_hits$exSize <= 75000)),] # restrict del size to < 75 kb
-Get_CH_DelSize_Plots(nonsyn.MSSNG_CH_hit_less75kb, "MSSNG_nonsyn_<75kb")
-
-# MSSNG synonymous
+# Get_CH_DelSize_Plots(nonsyn.MSSNG_CH_hits, "MSSNG_nonsyn")
+# 
+# nonsyn.MSSNG_CH_hit_less75kb <- nonsyn.MSSNG_CH_hits[(which(nonsyn.MSSNG_CH_hits$exSize <= 75000)),] # restrict del size to < 75 kb
+# Get_CH_DelSize_Plots(nonsyn.MSSNG_CH_hit_less75kb, "MSSNG_nonsyn_<75kb")
+# 
+# # MSSNG synonymous
 syn.MSSNG.SNVs <- MSSNG_parent_proband_proc_SNVs[which(MSSNG_parent_proband_proc_SNVs$effect_priority == "synonymous SNV"),]
-syn.MSSNG_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(syn.MSSNG.SNVs, MSSNG_parent_proband_all_ExonicSizes, 
-                                                            MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs, 
+syn.MSSNG_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(syn.MSSNG.SNVs, MSSNG_parent_proband_all_ExonicSizes,
+                                                            MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs,
                                                             filter_SNV = F)
-Get_CH_DelSize_Plots(syn.MSSNG_CH_hits, "MSSNG_syn")
-
-syn.MSSNG_CH_hit_less75kb <- syn.MSSNG_CH_hits[(which(syn.MSSNG_CH_hits$exSize <= 75000)),] # restrict del size to < 75 kb
-Get_CH_DelSize_Plots(syn.MSSNG_CH_hit_less75kb, "MSSNG_syn_<75kb")
-
-#### SSC ####
-SSC_CH_hits_nofilt <- Get_CH_hit_By_Individual_ExonicSize(SSC_parent_proband_proc_SNVs, 
+# Get_CH_DelSize_Plots(syn.MSSNG_CH_hits, "MSSNG_syn")
+# 
+# syn.MSSNG_CH_hit_less75kb <- syn.MSSNG_CH_hits[(which(syn.MSSNG_CH_hits$exSize <= 75000)),] # restrict del size to < 75 kb
+# Get_CH_DelSize_Plots(syn.MSSNG_CH_hit_less75kb, "MSSNG_syn_<75kb")
+# 
+# # syn.MSSNG_CH_hit_less20kb <- syn.MSSNG_CH_hits[(which(syn.MSSNG_CH_hits$exSize <= 20000)),] # restrict del size to < 20 kb
+# # Get_CH_DelSize_Plots(syn.MSSNG_CH_hit_less20kb, "MSSNG_syn_<20kb")
+# 
+# #### SSC 
+SSC_CH_hits_nofilt <- Get_CH_hit_By_Individual_ExonicSize(SSC_parent_proband_proc_SNVs,
                                                           SSC_parent_proband_all_ExonicSizes,
                                                           SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs,
                                                           filter_SNV = F)
-Get_CH_DelSize_Plots(SSC_CH_hits_nofilt, "SSC")
-
-SSC_CH_hits_nofilt_less25kb <- SSC_CH_hits_nofilt[(which(SSC_CH_hits_nofilt$exSize <= 25000)),] # restrict del size to < 25 kb
-Get_CH_DelSize_Plots(SSC_CH_hits_nofilt_less25kb, "SSC_<25kb")
-
-
-## Plot by variant type (effect_priority) - SSC
-
+# Get_CH_DelSize_Plots(SSC_CH_hits_nofilt, "SSC")
+# 
+# SSC_CH_hits_nofilt_less25kb <- SSC_CH_hits_nofilt[(which(SSC_CH_hits_nofilt$exSize <= 25000)),] # restrict del size to < 25 kb
+# Get_CH_DelSize_Plots(SSC_CH_hits_nofilt_less25kb, "SSC_<25kb")
+# 
+# 
+# ## Plot by variant type (effect_priority) - SSC
+# 
 # SSC nonsynonymous
 nonsyn.SSC.SNVs <- SSC_parent_proband_proc_SNVs[which(SSC_parent_proband_proc_SNVs$effect_priority == "nonsynonymous SNV"),]
-nonsyn.SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(nonsyn.SSC.SNVs, SSC_parent_proband_all_ExonicSizes, 
-                                                            SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs, 
+nonsyn.SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(nonsyn.SSC.SNVs, SSC_parent_proband_all_ExonicSizes,
+                                                            SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs,
                                                             filter_SNV = F)
-Get_CH_DelSize_Plots(nonsyn.SSC_CH_hits, "SSC_nonsyn")
-
-nonsyn.SSC_CH_hits_less25kb <- nonsyn.SSC_CH_hits[(which(nonsyn.SSC_CH_hits$exSize <= 25000)),] # restrict del size to < 25 kb
-Get_CH_DelSize_Plots(nonsyn.SSC_CH_hits_less25kb, "SSC_nonsyn_<25kb")
-
-# SSC synonymous
+# Get_CH_DelSize_Plots(nonsyn.SSC_CH_hits, "SSC_nonsyn")
+# 
+# nonsyn.SSC_CH_hits_less25kb <- nonsyn.SSC_CH_hits[(which(nonsyn.SSC_CH_hits$exSize <= 25000)),] # restrict del size to < 25 kb
+# Get_CH_DelSize_Plots(nonsyn.SSC_CH_hits_less25kb, "SSC_nonsyn_<25kb")
+# 
+# # SSC synonymous
 syn.SSC.SNVs <- SSC_parent_proband_proc_SNVs[which(SSC_parent_proband_proc_SNVs$effect_priority == "synonymous SNV"),]
-syn.SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(syn.SSC.SNVs, SSC_parent_proband_all_ExonicSizes, 
-                                                         SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs, 
+syn.SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(syn.SSC.SNVs, SSC_parent_proband_all_ExonicSizes,
+                                                         SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs,
                                                          filter_SNV = F)
-Get_CH_DelSize_Plots(syn.SSC_CH_hits, "SSC_syn")
-
-syn.SSC_CH_hits_less25kb <- syn.SSC_CH_hits[(which(syn.SSC_CH_hits$exSize <= 25000)),] # restrict del size to < 25 kb
-Get_CH_DelSize_Plots(syn.SSC_CH_hits_less25kb, "SSC_syn_<25kb")
-
-
-#### Combined MSSNG and SSC datasets ####
-
-## No pRec filter:####
+# Get_CH_DelSize_Plots(syn.SSC_CH_hits, "SSC_syn")
+# 
+# syn.SSC_CH_hits_less25kb <- syn.SSC_CH_hits[(which(syn.SSC_CH_hits$exSize <= 25000)),] # restrict del size to < 25 kb
+# Get_CH_DelSize_Plots(syn.SSC_CH_hits_less25kb, "SSC_syn_<25kb")
+# 
+# 
+# 
+# #### Combined MSSNG and SSC datasets
+# 
+# ## No pRec filter:
 MSSNG_SSC_CH_hits_nofilt <- rbind(MSSNG_CH_hits_nofilt, SSC_CH_hits_nofilt)
-
-Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_nofilt, "MSSNG+SSC")
-
-
-MSSNG_SSC_CH_hits_nofilt_less75kb <- MSSNG_SSC_CH_hits_nofilt[(which(MSSNG_SSC_CH_hits_nofilt$exSize <= 75000)),] # restrict del size to < 75 kb
-Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_nofilt_less75kb, "MSSNG+SSC_<75kb")
-
-
-## Plot by variant type (effect_priority) - MSSNG+SSC
-MSSNG_SSC_parent_proband_proc_SNVs <- rbind(MSSNG_parent_proband_proc_SNVs, SSC_parent_proband_proc_SNVs)
-MSSNG_SSC_parent_proband_all_ExonicSize <- rbind(MSSNG_parent_proband_all_ExonicSizes, SSC_parent_proband_all_ExonicSizes)
-
-# MSSNG+SSC nonsynonymous
+# 
+# Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_nofilt, "MSSNG+SSC")
+# 
+# 
+# MSSNG_SSC_CH_hits_nofilt_less75kb <- MSSNG_SSC_CH_hits_nofilt[(which(MSSNG_SSC_CH_hits_nofilt$exSize <= 75000)),] # restrict del size to < 75 kb
+# Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_nofilt_less75kb, "MSSNG+SSC_<75kb")
+# 
+# 
+# ## Plot by variant type (effect_priority) - MSSNG+SSC
+# MSSNG_SSC_parent_proband_proc_SNVs <- rbind(MSSNG_parent_proband_proc_SNVs, SSC_parent_proband_proc_SNVs)
+# MSSNG_SSC_parent_proband_all_ExonicSize <- rbind(MSSNG_parent_proband_all_ExonicSizes, SSC_parent_proband_all_ExonicSizes)
+# 
+# # MSSNG+SSC nonsynonymous
 nonsyn.SNVs <- MSSNG_SSC_parent_proband_proc_SNVs[which(MSSNG_SSC_parent_proband_proc_SNVs$effect_priority == "nonsynonymous SNV"),]
-nonsyn.MSSNG_SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(nonsyn.SNVs, MSSNG_SSC_parent_proband_all_ExonicSize, 
-                                                                c(MSSNG_proband_IDs, SSC_proband_IDs), 
-                                                                c(MSSNG_father_IDs, SSC_father_IDs), 
+nonsyn.MSSNG_SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(nonsyn.SNVs, MSSNG_SSC_parent_proband_all_ExonicSize,
+                                                                c(MSSNG_proband_IDs, SSC_proband_IDs),
+                                                                c(MSSNG_father_IDs, SSC_father_IDs),
                                                                 c(MSSNG_mother_IDs, SSC_mother_IDs),
                                                                 filter_SNV = F)
-Get_CH_DelSize_Plots(nonsyn.MSSNG_SSC_CH_hits, "MSSNG+SSC_nonsyn")
-
-nonsyn.MSSNG_SSC_CH_hits_less75kb <- nonsyn.MSSNG_SSC_CH_hits[(which(nonsyn.MSSNG_SSC_CH_hits$exSize <= 75000)),] # restrict del size to < 75 kb
-Get_CH_DelSize_Plots(nonsyn.MSSNG_SSC_CH_hits_less75kb, "MSSNG+SSC_nonsyn_<75kb")
-
-# MSSNG+SSC synonymous
+# Get_CH_DelSize_Plots(nonsyn.MSSNG_SSC_CH_hits, "MSSNG+SSC_nonsyn")
+# 
+# nonsyn.MSSNG_SSC_CH_hits_less75kb <- nonsyn.MSSNG_SSC_CH_hits[(which(nonsyn.MSSNG_SSC_CH_hits$exSize <= 75000)),] # restrict del size to < 75 kb
+# Get_CH_DelSize_Plots(nonsyn.MSSNG_SSC_CH_hits_less75kb, "MSSNG+SSC_nonsyn_<75kb")
+# 
+# # MSSNG+SSC synonymous
 syn.SNVs <- MSSNG_SSC_parent_proband_proc_SNVs[which(MSSNG_SSC_parent_proband_proc_SNVs$effect_priority == "synonymous SNV"),]
-syn.MSSNG_SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(syn.SNVs, MSSNG_SSC_parent_proband_all_ExonicSize, 
-                                                                c(MSSNG_proband_IDs, SSC_proband_IDs), 
-                                                                c(MSSNG_father_IDs, SSC_father_IDs), 
+syn.MSSNG_SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(syn.SNVs, MSSNG_SSC_parent_proband_all_ExonicSize,
+                                                                c(MSSNG_proband_IDs, SSC_proband_IDs),
+                                                                c(MSSNG_father_IDs, SSC_father_IDs),
                                                                 c(MSSNG_mother_IDs, SSC_mother_IDs),
                                                                 filter_SNV = F)
-Get_CH_DelSize_Plots(syn.MSSNG_SSC_CH_hits, "MSSNG+SSC_syn")
-
-syn.MSSNG_SSC_CH_hits_less75kb <- syn.MSSNG_SSC_CH_hits[(which(syn.MSSNG_SSC_CH_hits$exSize <= 75000)),] # restrict del size to < 75 kb
-Get_CH_DelSize_Plots(syn.MSSNG_SSC_CH_hits_less75kb, "MSSNG+SSC_syn_<75kb")
-
-
-## MSSNG+SSC combined with pRec > 0.9 filter ####
+# Get_CH_DelSize_Plots(syn.MSSNG_SSC_CH_hits, "MSSNG+SSC_syn")
+# 
+# syn.MSSNG_SSC_CH_hits_less75kb <- syn.MSSNG_SSC_CH_hits[(which(syn.MSSNG_SSC_CH_hits$exSize <= 75000)),] # restrict del size to < 75 kb
+# Get_CH_DelSize_Plots(syn.MSSNG_SSC_CH_hits_less75kb, "MSSNG+SSC_syn_<75kb")
+# 
+# 
+# ## MSSNG+SSC combined with pRec > 0.9 filter z
 MSSNG_CH_hits_pRec <- Get_CH_hit_By_Individual_ExonicSize(MSSNG_parent_proband_proc_SNVs,
                                                           MSSNG_parent_proband_all_ExonicSizes,
                                                           MSSNG_proband_IDs, MSSNG_father_IDs, MSSNG_mother_IDs,
-                                                          filter_SNV = T) 
+                                                          filter_SNV = T)
 SSC_CH_hits_pRec <- Get_CH_hit_By_Individual_ExonicSize(SSC_parent_proband_proc_SNVs,
                                                         SSC_parent_proband_all_ExonicSizes,
                                                         SSC_proband_IDs, SSC_father_IDs, SSC_mother_IDs,
                                                         filter_SNV = T)
 MSSNG_SSC_CH_hits_pRec <- rbind(MSSNG_CH_hits_pRec, SSC_CH_hits_pRec)
-Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_pRec, "MSSNG+SSC_pRec0.9")
-
+# Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_pRec, "MSSNG+SSC_pRec0.9")
+# 
 # MSSNG_SSC_CH_hits_pRec_less75kb <- MSSNG_SSC_CH_hits_pRec[(which(MSSNG_SSC_CH_hits_pRec$exSize <= 75000)),] # restrict del size to < 75 kb
 # Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_pRec_less75kb, "MSSNG+SSC_pRec0.9_<75kb")
 
@@ -412,21 +433,21 @@ Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F, pRec_size_
     }
     if (size_bin == "1-2kb"){
       CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & 
-                                              (CH_hits_df_type$exSize > 1000 & CH_hits_df_type$exSize <= 2000),]
+                                                   (CH_hits_df_type$exSize > 1000 & CH_hits_df_type$exSize <= 2000),]
       CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & 
-                                              (CH_hits_df_type$exSize > 1000 & CH_hits_df_type$exSize <= 2000),]
+                                                   (CH_hits_df_type$exSize > 1000 & CH_hits_df_type$exSize <= 2000),]
     }
     if (size_bin == "2-5kb"){
       CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & 
-                                              (CH_hits_df_type$exSize > 2000 & CH_hits_df_type$exSize <= 5000),]
+                                                   (CH_hits_df_type$exSize > 2000 & CH_hits_df_type$exSize <= 5000),]
       CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & 
-                                              (CH_hits_df_type$exSize > 2000 & CH_hits_df_type$exSize <= 5000),]
+                                                   (CH_hits_df_type$exSize > 2000 & CH_hits_df_type$exSize <= 5000),]
     }
     if (size_bin == "5-10kb"){
       CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & 
-                                              (CH_hits_df_type$exSize > 5000 & CH_hits_df_type$exSize <= 10000),]
+                                                   (CH_hits_df_type$exSize > 5000 & CH_hits_df_type$exSize <= 10000),]
       CH_hits_controls_target <- CH_hits_df_type[CH_hits_df_type$Relation %in% c('Father','Mother') & 
-                                              (CH_hits_df_type$exSize > 5000 & CH_hits_df_type$exSize <= 10000),]
+                                                   (CH_hits_df_type$exSize > 5000 & CH_hits_df_type$exSize <= 10000),]
     }
     if (size_bin == "10kb+"){
       CH_hits_probands_target <- CH_hits_df_type[CH_hits_df_type$Relation == 'Proband' & CH_hits_df_type$exSize > 10000,]
@@ -482,7 +503,7 @@ Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F, pRec_size_
     # proband_resi <- CH_hits_probands_target$CH_hit - ((sum(CH_hits_df$CH_hit)/sum(CH_hits_df$exSize)) * CH_hits_probands_target$exSize)
     # control_resi <- CH_hits_controls_target$CH_hit - ((sum(CH_hits_df$CH_hit)/sum(CH_hits_df$exSize)) * CH_hits_controls_target$exSize)
   }
-    
+  
   ## Make Fisher Exact Test:
   proband_resi <- proband_resi[!is.na(proband_resi)]
   proband_above_expect <- sum(proband_resi > 0)
@@ -513,80 +534,138 @@ Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F, pRec_size_
   # write.csv(case_control_fisher_res.df, file.path)
 }
 
-#### Fisher's Test for MSSNG (all variants) #### 
-MSSNG_all_fisher <- Get_Fisher_Res(MSSNG_CH_hits_nofilt, MSSNG_CH_hits_nofilt)
-write.table(MSSNG_all_fisher, "./CH_count_del_size/data/MSSNG_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
-
-#### Fisher's Test for SSC (all variants) ####
-SSC_all_fisher <- Get_Fisher_Res(SSC_CH_hits_nofilt, SSC_CH_hits_nofilt)
-write.table(SSC_all_fisher, "./CH_count_del_size/data/SSC_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
-
-#### Fisher's Test for MSSNG+SSC (all variants) ####
-MSSNG_SSC_all_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, MSSNG_SSC_CH_hits_nofilt)
-write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
-
-## MSSNG+SSC nonsyn
-MSSNG_SSC_nonsyn_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, nonsyn.MSSNG_SSC_CH_hits)
-write.table(MSSNG_SSC_nonsyn_fisher, "./CH_count_del_size/data/MSSNG_SSC_nonsyn_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
-
-
-## MSSNG+SSC syn
-MSSNG_SSC_syn_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, syn.MSSNG_SSC_CH_hits)
-write.table(MSSNG_SSC_syn_fisher, "./CH_count_del_size/data/MSSNG_SSC_syn_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
+# ###Fisher's Test for MSSNG (all variants) ##
+# MSSNG_all_fisher <- Get_Fisher_Res(MSSNG_CH_hits_nofilt, MSSNG_CH_hits_nofilt)
+# write.table(MSSNG_all_fisher, "./CH_count_del_size/data/MSSNG_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
+# 
+# #### Fisher's Test for SSC (all variants) ##
+# SSC_all_fisher <- Get_Fisher_Res(SSC_CH_hits_nofilt, SSC_CH_hits_nofilt)
+# write.table(SSC_all_fisher, "./CH_count_del_size/data/SSC_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
+# 
+# #### Fisher's Test for MSSNG+SSC (all variants) ##
+# MSSNG_SSC_all_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, MSSNG_SSC_CH_hits_nofilt)
+# write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
+# 
+# ## MSSNG+SSC nonsyn
+# MSSNG_SSC_nonsyn_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, nonsyn.MSSNG_SSC_CH_hits)
+# write.table(MSSNG_SSC_nonsyn_fisher, "./CH_count_del_size/data/MSSNG_SSC_nonsyn_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
+# 
+# 
+# ## MSSNG+SSC syn
+# MSSNG_SSC_syn_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, syn.MSSNG_SSC_CH_hits)
+# write.table(MSSNG_SSC_syn_fisher, "./CH_count_del_size/data/MSSNG_SSC_syn_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
 
 #### MSSNG+SSC pRec > 0.9
 # MSSNG_SSC_pRec_fisher <- Get_Fisher_Res(MSSNG_SSC_CH_hits_pRec, MSSNG_SSC_CH_hits_pRec, pRec_size_bins = T)
 # write.table(MSSNG_SSC_all_fisher, "./CH_count_del_size/data/MSSNG_SSC_all_fisher.tsv",  sep="\t", row.names=F, quote=F, col.names=T)
 
 
-#### Fisher's Test for Exonic Del Size Bins ####
+#### Fisher's Test for Exonic Del Size Bins (above/below observed line) ####
+
+# Get_Fisher_Res_SizeBins <- function(CH_hits_df, name, pRec_size_bins = F){
+#   ## Writes a table of Fishers test results for 5 exonic deletion size bins under name
+#   fisher.res.comb <- data.frame()
+#   if (pRec_size_bins == F){
+#     for (size_bin in c("0-1kb", "1-2kb", "2-5kb", "5-10kb", "10kb+")){
+#       fisher.res <- Get_Fisher_Res(CH_hits_df, CH_hits_df, size_bin = size_bin)
+#       fisher.res <- cbind(size.bin = size_bin, fisher.res)
+#       fisher.res.comb <- rbind(fisher.res.comb, fisher.res)
+#       
+#       file.path <- sprintf("./CH_count_del_size/data/%s_sizes_fisher.tsv", name)
+#       write.table(fisher.res.comb, file.path, sep="\t", row.names=F, quote=F, col.names=T)
+#     }
+#   }
+#   if (pRec_size_bins == T){
+#     for (size_bin in c("0-1kb", "1-5kb", "5-10kb", "10-20kb", "20-50kb", "50kb+")){
+#       fisher.res <- Get_Fisher_Res(CH_hits_df, CH_hits_df, pRec_size_bins = size_bin)
+#       fisher.res <- cbind(size.bin = size_bin, fisher.res)
+#       fisher.res.comb <- rbind(fisher.res.comb, fisher.res)
+#       
+#       file.path <- sprintf("./CH_count_del_size/data/%s_sizes_fisher.tsv", name)
+#       write.table(fisher.res.comb, file.path, sep="\t", row.names=F, quote=F, col.names=T)
+#     }
+#   }
+# }
+# 
+# ## MSSNG + SSC
+# MSSNG_SSC_all_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_SSC_CH_hits_nofilt, "MSSNG.SSC.all.nofilt")
+# MSSNG_SSC_nonsyn_fisher_sizes <- Get_Fisher_Res_SizeBins(nonsyn.MSSNG_SSC_CH_hits, "MSSNG.SSC.nonsyn.nofilt")
+# MSSNG_SSC_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.MSSNG_SSC_CH_hits, "MSSNG.SSC.syn.nofilt")
+# # pRec > 0.9
+# MSSNG_SSC_pRec_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_SSC_CH_hits_pRec, "MSSNG.SSC.pRec", pRec_size_bins = T) 
+# 
+# ## MSSNG 
+# MSSNG_all_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_CH_hits_nofilt, "MSSNG.all.nofilt")
+# MSSNG_nonsyn_fisher_sizes <- Get_Fisher_Res_SizeBins(nonsyn.MSSNG_CH_hits, "MSSNG.nonsyn.nofilt")
+# MSSNG_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.MSSNG_CH_hits, "MSSNG.syn.nofilt")
+# 
+# ## SSC 
+# SSC_all_fisher_sizes <- Get_Fisher_Res_SizeBins(SSC_CH_hits_nofilt, "SSC.all.nofilt")
+# MSSNG_SSC_nonsyn_fisher_sizes <- Get_Fisher_Res_SizeBins(nonsyn.SSC_CH_hits, "SSC.nonsyn.nofilt")
+# MSSNG_SSC_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.SSC_CH_hits, "SSC.syn.nofilt")
+
+#####################################################################################################################################################################################################################
+
+#### Using Median (or 80th, 90th percentile) within Size Bins Fisher Tests ####
+
+Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.window=F, median=T){
+  # remove (0,0) individuals from CH_hits (outliers)
+  CH_hits <- CH_hits[which(!(CH_hits$exSize == 0 & CH_hits$CH_hit == 0)),]
   
-Get_Fisher_Res_SizeBins <- function(CH_hits_df, name, pRec_size_bins = F){
-  ## Writes a table of Fishers test results for 5 exonic deletion size bins under name
-  fisher.res.comb <- data.frame()
-  if (pRec_size_bins == F){
-    for (size_bin in c("0-1kb", "1-2kb", "2-5kb", "5-10kb", "10kb+")){
-      fisher.res <- Get_Fisher_Res(CH_hits_df, CH_hits_df, size_bin = size_bin)
-      fisher.res <- cbind(size.bin = size_bin, fisher.res)
-      fisher.res.comb <- rbind(fisher.res.comb, fisher.res)
-      
-      file.path <- sprintf("./CH_count_del_size/data/%s_sizes_fisher.tsv", name)
-      write.table(fisher.res.comb, file.path, sep="\t", row.names=F, quote=F, col.names=T)
-    }
+  # make size.bins list
+  size.bins <- list()
+  bin.start <- 0
+  if (bin.end == F){
+    bin.end <- max(CH_hits$exSize)
   }
-  if (pRec_size_bins == T){
-    for (size_bin in c("0-1kb", "1-5kb", "5-10kb", "10-20kb", "20-50kb", "50kb+")){
-      fisher.res <- Get_Fisher_Res(CH_hits_df, CH_hits_df, pRec_size_bins = size_bin)
-      fisher.res <- cbind(size.bin = size_bin, fisher.res)
-      fisher.res.comb <- rbind(fisher.res.comb, fisher.res)
-      
-      file.path <- sprintf("./CH_count_del_size/data/%s_sizes_fisher.tsv", name)
-      write.table(fisher.res.comb, file.path, sep="\t", row.names=F, quote=F, col.names=T)
-    }
+  while (bin.start < bin.end){
+    bin <- list(bin.start, bin.start + bin.size) # list(start, end)
+    size.bins <- c(size.bins, list(bin))
+    bin.start <- bin.start + bin.size
   }
+  
+  # get Fisher for each size bin (element in size.bins)
+  fisher.out <- data.frame()
+  for (i in 1:length(size.bins)){
+    bin.start.end <- size.bins[[i]]
+    start <- bin.start.end[[1]]
+    end <- bin.start.end[[2]]
+    CH_hits_in_bin <- CH_hits[which(CH_hits$exSize >= start & CH_hits$exSize < end),] 
+    
+    cases <- CH_hits_in_bin[which(CH_hits_in_bin$Relation == "Proband"),]
+    controls <- CH_hits_in_bin[which(!CH_hits_in_bin$Relation == "Proband"),]
+    
+    if (median == T){ 
+      median <- median(controls$CH_hit) # find median of parents # CH hits
+    }
+    
+    case.above <- nrow(cases[which(cases$CH_hit > median),])
+    case.below <- nrow(cases[which(cases$CH_hit <= median),])
+    control.above <- nrow(controls[which(controls$CH_hit > median),])
+    control.below <- nrow(controls[which(controls$CH_hit <= median),])
+    
+    fisher_df <- data.frame(Above=c(case.above, control.above),
+                            Below=c(case.below, control.below))
+    rownames(fisher_df) <- c('Case','Control')
+    fisher_res <- fisher.test(fisher_df, alternative='greater')
+    fisher_res.df <- broom::tidy(fisher_res)
+    
+    ## add counts to fisher results
+    fisher_res.df$case.above <- case.above
+    fisher_res.df$case.below <-case.below
+    fisher_res.df$control.above <- control.above
+    fisher_res.df$control.below <- control.below
+    
+    ## add size bin start & end columns
+    fisher_res.df$size.bin.start <- start
+    fisher_res.df$size.bin.end <- end
+    
+    fisher_res.df <- cbind(fisher_res.df[,c(11,12)], fisher_res.df[,c(1:10)]) # move size bin cols to front
+    
+    fisher.out <- rbind(fisher.out, fisher_res.df)
+  }
+  return(fisher.out)
 }
 
-## MSSNG + SSC
-MSSNG_SSC_all_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_SSC_CH_hits_nofilt, "MSSNG.SSC.all.nofilt")
-MSSNG_SSC_nonsyn_fisher_sizes <- Get_Fisher_Res_SizeBins(nonsyn.MSSNG_SSC_CH_hits, "MSSNG.SSC.nonsyn.nofilt")
-MSSNG_SSC_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.MSSNG_SSC_CH_hits, "MSSNG.SSC.syn.nofilt")
-# pRec > 0.9
-MSSNG_SSC_pRec_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_SSC_CH_hits_pRec, "MSSNG.SSC.pRec", pRec_size_bins = T) 
-
-## MSSNG 
-MSSNG_all_fisher_sizes <- Get_Fisher_Res_SizeBins(MSSNG_CH_hits_nofilt, "MSSNG.all.nofilt")
-MSSNG_nonsyn_fisher_sizes <- Get_Fisher_Res_SizeBins(nonsyn.MSSNG_CH_hits, "MSSNG.nonsyn.nofilt")
-MSSNG_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.MSSNG_CH_hits, "MSSNG.syn.nofilt")
-
-## SSC 
-SSC_all_fisher_sizes <- Get_Fisher_Res_SizeBins(SSC_CH_hits_nofilt, "SSC.all.nofilt")
-MSSNG_SSC_nonsyn_fisher_sizes <- Get_Fisher_Res_SizeBins(nonsyn.SSC_CH_hits, "SSC.nonsyn.nofilt")
-MSSNG_SSC_syn_fisher_sizes <- Get_Fisher_Res_SizeBins(syn.SSC_CH_hits, "SSC.syn.nofilt")
-
-
-
-
-
-
-
+MSSNG.SSC.median.fisher <- Get_Bins_Median_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, bin.size = 1000, median=T)
 
