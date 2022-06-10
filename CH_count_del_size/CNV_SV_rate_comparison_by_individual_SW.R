@@ -355,10 +355,10 @@ MSSNG_SSC_CH_hits_nofilt <- rbind(MSSNG_CH_hits_nofilt, SSC_CH_hits_nofilt)
 # Get_CH_DelSize_Plots(MSSNG_SSC_CH_hits_nofilt_less75kb, "MSSNG+SSC_<75kb")
 # 
 # 
-# ## Plot by variant type (effect_priority) - MSSNG+SSC
-# MSSNG_SSC_parent_proband_proc_SNVs <- rbind(MSSNG_parent_proband_proc_SNVs, SSC_parent_proband_proc_SNVs)
-# MSSNG_SSC_parent_proband_all_ExonicSize <- rbind(MSSNG_parent_proband_all_ExonicSizes, SSC_parent_proband_all_ExonicSizes)
-# 
+## Plot by variant type (effect_priority) - MSSNG+SSC
+MSSNG_SSC_parent_proband_proc_SNVs <- rbind(MSSNG_parent_proband_proc_SNVs, SSC_parent_proband_proc_SNVs)
+MSSNG_SSC_parent_proband_all_ExonicSize <- rbind(MSSNG_parent_proband_all_ExonicSizes, SSC_parent_proband_all_ExonicSizes)
+
 # # MSSNG+SSC nonsynonymous
 nonsyn.SNVs <- MSSNG_SSC_parent_proband_proc_SNVs[which(MSSNG_SSC_parent_proband_proc_SNVs$effect_priority == "nonsynonymous SNV"),]
 nonsyn.MSSNG_SSC_CH_hits <- Get_CH_hit_By_Individual_ExonicSize(nonsyn.SNVs, MSSNG_SSC_parent_proband_all_ExonicSize,
@@ -647,8 +647,17 @@ Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.win
     fisher_df <- data.frame(Above=c(case.above, control.above),
                             Below=c(case.below, control.below))
     rownames(fisher_df) <- c('Case','Control')
-    fisher_res <- fisher.test(fisher_df, alternative='greater')
-    fisher_res.df <- broom::tidy(fisher_res)
+    
+    fisher_res_onesided <- fisher.test(fisher_df, alternative='greater')
+    fisher_res_twosided <- fisher.test(fisher_df)
+    
+    fisher_res_onesided.df <- broom::tidy(fisher_res_onesided)
+    fisher_res_twosided.df <- broom::tidy(fisher_res_twosided)
+    
+    ## use p-value from one-sided test, but conf.high from two-sided test
+    fisher_res.df <- fisher_res_twosided.df
+    fisher_res.df$p.value <- fisher_res_onesided.df$p.value
+    fisher_res.df$alternative <- fisher_res_onesided.df$alternative
     
     ## add counts to fisher results
     fisher_res.df$case.above <- case.above
@@ -668,4 +677,10 @@ Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.win
 }
 
 MSSNG.SSC.median.fisher <- Get_Bins_Median_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, bin.size = 1000, cut.off="median")
-write.table(MSSNG.SSC.median.fisher, "./CH_count_del_size/data/MSSNG.SSC.median.fisher.tsv", sep="\t", row.names=F, quote=F, col.names=T)
+write.table(MSSNG.SSC.median.fisher, "./CH_count_del_size/data/median.fisher/MSSNG.SSC.median.fisher.tsv", sep="\t", row.names=F, quote=F, col.names=T)
+
+MSSNG.median.fisher <- Get_Bins_Median_Fisher_Res(MSSNG_CH_hits_nofilt, bin.size = 1000, cut.off="median")
+write.table(MSSNG.median.fisher, "./CH_count_del_size/data/median.fisher/MSSNG.median.fisher.tsv", sep="\t", row.names=F, quote=F, col.names=T)
+
+SSC.median.fisher <- Get_Bins_Median_Fisher_Res(SSC_CH_hits_nofilt, bin.size = 1000, cut.off="median")
+write.table(SSC.median.fisher, "./CH_count_del_size/data/median.fisher/SSC.median.fisher.tsv", sep="\t", row.names=F, quote=F, col.names=T)
