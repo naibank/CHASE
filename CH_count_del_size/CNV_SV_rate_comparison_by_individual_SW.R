@@ -636,13 +636,13 @@ Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.win
     controls <- CH_hits_in_bin[which(!CH_hits_in_bin$Relation == "Proband"),]
     
     if (median == T){ 
-      median <- median(controls$CH_hit) # find median of parents # CH hits
+      bin.median <- median(controls$CH_hit) # find median of parents # CH hits
     }
     
-    case.above <- nrow(cases[which(cases$CH_hit > median),])
-    case.below <- nrow(cases[which(cases$CH_hit <= median),])
-    control.above <- nrow(controls[which(controls$CH_hit > median),])
-    control.below <- nrow(controls[which(controls$CH_hit <= median),])
+    case.above <- nrow(cases[which(cases$CH_hit > bin.median),])
+    case.below <- nrow(cases[which(cases$CH_hit <= bin.median),])
+    control.above <- nrow(controls[which(controls$CH_hit > bin.median),])
+    control.below <- nrow(controls[which(controls$CH_hit <= bin.median),])
     
     fisher_df <- data.frame(Above=c(case.above, control.above),
                             Below=c(case.below, control.below))
@@ -668,4 +668,4 @@ Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.win
 }
 
 MSSNG.SSC.median.fisher <- Get_Bins_Median_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, bin.size = 1000, median=T)
-
+write.table(MSSNG.SSC.median.fisher, "./CH_count_del_size/data/MSSNG.SSC.median.fisher.tsv", sep="\t", row.names=F, quote=F, col.names=T)
