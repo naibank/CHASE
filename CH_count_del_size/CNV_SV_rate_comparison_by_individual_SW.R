@@ -608,7 +608,7 @@ Get_Fisher_Res <- function(CH_hits_df, CH_hits_df_type, size_bin = F, pRec_size_
 
 #### Using Median (or 80th, 90th percentile) within Size Bins Fisher Tests ####
 
-Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.window=F, median=T){
+Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.window=F, cut.off="median"){
   # remove (0,0) individuals from CH_hits (outliers)
   CH_hits <- CH_hits[which(!(CH_hits$exSize == 0 & CH_hits$CH_hit == 0)),]
   
@@ -635,14 +635,14 @@ Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.win
     cases <- CH_hits_in_bin[which(CH_hits_in_bin$Relation == "Proband"),]
     controls <- CH_hits_in_bin[which(!CH_hits_in_bin$Relation == "Proband"),]
     
-    if (median == T){ 
-      bin.median <- median(controls$CH_hit) # find median of parents # CH hits
+    if (cut.off == "median"){ 
+      bin.cutoff <- median(controls$CH_hit) # find median of parents # CH hits
     }
     
-    case.above <- nrow(cases[which(cases$CH_hit > bin.median),])
-    case.below <- nrow(cases[which(cases$CH_hit <= bin.median),])
-    control.above <- nrow(controls[which(controls$CH_hit > bin.median),])
-    control.below <- nrow(controls[which(controls$CH_hit <= bin.median),])
+    case.above <- nrow(cases[which(cases$CH_hit > bin.cutoff),])
+    case.below <- nrow(cases[which(cases$CH_hit <= bin.cutoff),])
+    control.above <- nrow(controls[which(controls$CH_hit > bin.cutoff),])
+    control.below <- nrow(controls[which(controls$CH_hit <= bin.cutoff),])
     
     fisher_df <- data.frame(Above=c(case.above, control.above),
                             Below=c(case.below, control.below))
@@ -667,5 +667,5 @@ Get_Bins_Median_Fisher_Res <- function(CH_hits, bin.end=F, bin.size, sliding.win
   return(fisher.out)
 }
 
-MSSNG.SSC.median.fisher <- Get_Bins_Median_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, bin.size = 1000, median=T)
+MSSNG.SSC.median.fisher <- Get_Bins_Median_Fisher_Res(MSSNG_SSC_CH_hits_nofilt, bin.size = 1000, cut.off="median")
 write.table(MSSNG.SSC.median.fisher, "./CH_count_del_size/data/MSSNG.SSC.median.fisher.tsv", sep="\t", row.names=F, quote=F, col.names=T)
