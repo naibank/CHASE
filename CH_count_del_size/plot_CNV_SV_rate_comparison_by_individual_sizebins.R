@@ -5,163 +5,205 @@ library(dplyr)
 library(ggplot2)
 library(broom)
 library(cowplot)
+library(reshape2)
 
 setwd("/Users/shaniawu/hpf/largeprojects/tcagstor/tcagstor_tmp/shania.wu/CH_count_del_size")
 
-########################################################################################################################################################################################
-#### Plot CUT-OFFs for each size bin ####
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbPalette.t <- c("#99999933", "#E69F0033", "#56B4E933", "#009E7333", "#F0E44233", "#0072B233", "#D55E0033", "#CC79A733")
+cbVermeer <- c('#6495ED','#93CCEA','#6495ED50','#93CCEA50','#6495ED20','#93CCEA20')
 
-## median, bin size = 1kb
-# MSSNG.SSC <- fread("./data/median.fisher/MSSNG.SSC.median.fisher.tsv", data.table=F)
-# MSSNG.SSC.less.30k <- MSSNG.SSC[which(MSSNG.SSC$size.bin.end <= 30000),]
-# 
-# MSSNG <- fread("./data/median.fisher/MSSNG.median.fisher.tsv", data.table=F)
-# MSSNG.less.30k <- MSSNG[which(MSSNG$size.bin.end <= 30000),]
-# 
-# SSC <- fread("./data/median.fisher/SSC.median.fisher.tsv", data.table=F)
-# SSC.less.30k <- SSC[which(SSC$size.bin.end <= 30000),]
+## Read CH hits 
+MSSNG.SSC.CH.hits <- fread("./data/CH_hits/MSSNG_SSC_CH_hits_nofilt.tsv", data.table=F)
+MSSNG.SSC.CH.hits$cohort <- "MSSNG+SSC"
+MSSNG.CH.hits <- fread("./data/CH_hits/MSSNG_CH_hits_nofilt.tsv", data.table=F)
+MSSNG.CH.hits$cohort <- "MSSNG"
+SSC.CH.hits <- fread("./data/CH_hits/SSC_CH_hits_nofilt.tsv", data.table=F)
+SSC.CH.hits$cohort <- "SSC"
+comb.CH.hits <- rbind(MSSNG.SSC.CH.hits, MSSNG.CH.hits, SSC.CH.hits)
 
-
-# all.files <- list.files(path = folder, pattern = "^filename\\d+_\\d{4}\\.csv$")
-# 
-# l <- lapply(all.files, fread, sep=",")
-# dt <- rbindlist(l )
-# setkey(dt, ID)
-# unique(dt, by = 'ID')
-
-## median, bin size = 2.5kb
+## Read Cut-offs 
+# median, bin size = 2.5kb
 MSSNG.SSC.median <- fread("./data/sizebins.fisher/MSSNG.SSC.median.2.5kb.fisher.tsv", data.table=F)
 MSSNG.SSC.median$cohort <- "MSSNG+SSC"
 MSSNG.median <- fread("./data/sizebins.fisher/MSSNG.median.2.5kb.fisher.tsv", data.table=F)
 MSSNG.median$cohort <- "MSSNG"
 SSC.median <- fread("./data/sizebins.fisher/SSC.median.2.5kb.fisher.tsv", data.table=F)
 SSC.median$cohort <- "SSC"
-
 comb.median <- rbind(MSSNG.SSC.median, MSSNG.median, SSC.median)
 comb.median <- comb.median[which(comb.median$size.bin.end <= 30000),]
 
-ggplot(comb.median, aes(x = size.bin.start, y = cut.off)) +
-  geom_point(aes(color=cohort)) +
-  geom_line(aes(color=cohort)) +
-  scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
-  labs(y='Control No. SNV Meidan', x='Size Bin Start (bp)', color="cohort", 
-       title="MSSNG+SSC Bin Median (bin size = 2.5 kb)") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
-
-plot.path <- "./figures/sizebins.median_2.5kb.png"
-ggsave(plot.path, width = 6, height = 5)
-
-
-## mean, bin size = 2.5kb
-MSSNG.SSC.mean <- fread("./data/sizebins.fisher/MSSNG.SSC.mean.2.5kb.fisher.tsv", data.table=F)
-MSSNG.SSC.mean$cohort <- "MSSNG+SSC"
-MSSNG.mean <- fread("./data/sizebins.fisher/MSSNG.mean.2.5kb.fisher.tsv", data.table=F)
-MSSNG.mean$cohort <- "MSSNG"
-SSC.mean <- fread("./data/sizebins.fisher/SSC.mean.2.5kb.fisher.tsv", data.table=F)
-SSC.mean$cohort <- "SSC"
-
-comb.mean <- rbind(MSSNG.SSC.mean, MSSNG.mean, SSC.mean)
-comb.mean <- comb.mean[which(comb.mean$size.bin.end <= 30000),]
-
-ggplot(comb.mean, aes(x = size.bin.start, y = cut.off)) +
-  geom_point(aes(color=cohort)) +
-  geom_line(aes(color=cohort)) +
-  scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
-  labs(y='Control No. SNV Mean', x='Size Bin Start (bp)', color="cohort", 
-       title="MSSNG+SSC Bin Mean (bin size = 2.5 kb)") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
-
-plot.path <- "./figures/sizebins.mean_2.5kb.png"
-ggsave(plot.path, width = 6, height = 5)
-
-
-## 70th Percentile, bin size = 2.5kb
-MSSNG.SSC.0.7 <- fread("./data/sizebins.fisher/MSSNG.SSC.0.7_2.5kb.fisher.tsv", data.table=F)
-MSSNG.SSC.0.7$cohort <- "MSSNG+SSC"
-MSSNG.0.7 <- fread("./data/sizebins.fisher/MSSNG.0.7_2.5kb.fisher.tsv", data.table=F)
-MSSNG.0.7$cohort <- "MSSNG"
-SSC.0.7 <- fread("./data/sizebins.fisher/SSC.0.7_2.5kb.fisher.tsv", data.table=F)
-SSC.0.7$cohort <- "SSC"
-
-comb.0.7 <- rbind(MSSNG.SSC.0.7, MSSNG.0.7, SSC.0.7)
-comb.0.7 <- comb.0.7[which(comb.0.7$size.bin.end <= 30000),]
-
-ggplot(comb.0.7, aes(x = size.bin.start, y = cut.off)) +
-  geom_point(aes(color=cohort)) +
-  geom_line(aes(color=cohort)) +
-  scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
-  labs(y='Control No. SNV 70th Percentile', x='Size Bin Start (bp)', color="cohort", 
-       title="MSSNG+SSC Bin 70th Percentile (bin size = 2.5 kb)") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
-
-plot.path <- "./figures/sizebins.0.7_2.5kb.png"
-ggsave(plot.path, width = 6, height = 5)
-
-
-## 80th Percentile, bin size = 2.5kb
+# 80th Percentile, bin size = 2.5kb
 MSSNG.SSC.0.8 <- fread("./data/sizebins.fisher/MSSNG.SSC.0.8_2.5kb.fisher.tsv", data.table=F)
 MSSNG.SSC.0.8$cohort <- "MSSNG+SSC"
 MSSNG.0.8 <- fread("./data/sizebins.fisher/MSSNG.0.8_2.5kb.fisher.tsv", data.table=F)
 MSSNG.0.8$cohort <- "MSSNG"
 SSC.0.8 <- fread("./data/sizebins.fisher/SSC.0.8_2.5kb.fisher.tsv", data.table=F)
 SSC.0.8$cohort <- "SSC"
-
 comb.0.8 <- rbind(MSSNG.SSC.0.8, MSSNG.0.8, SSC.0.8)
 comb.0.8 <- comb.0.8[which(comb.0.8$size.bin.end <= 30000),]
 
-ggplot(comb.0.8, aes(x = size.bin.start, y = cut.off)) +
-  geom_point(aes(color=cohort)) +
-  geom_line(aes(color=cohort)) +
-  scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
-  labs(y='Control No. SNV 80th Percentile', x='Size Bin Start (bp)', color="cohort", 
-       title="MSSNG+SSC Bin 80th Percentile (bin size = 2.5 kb)") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
-
-plot.path <- "./figures/sizebins.0.8_2.5kb.png"
-ggsave(plot.path, width = 6, height = 5)
-
-## 90th Percentile, bin size = 2.5kb
+# 90th Percentile, bin size = 2.5kb
 MSSNG.SSC.0.9 <- fread("./data/sizebins.fisher/MSSNG.SSC.0.9_2.5kb.fisher.tsv", data.table=F)
 MSSNG.SSC.0.9$cohort <- "MSSNG+SSC"
 MSSNG.0.9 <- fread("./data/sizebins.fisher/MSSNG.0.9_2.5kb.fisher.tsv", data.table=F)
 MSSNG.0.9$cohort <- "MSSNG"
 SSC.0.9 <- fread("./data/sizebins.fisher/SSC.0.9_2.5kb.fisher.tsv", data.table=F)
 SSC.0.9$cohort <- "SSC"
-
 comb.0.9 <- rbind(MSSNG.SSC.0.9, MSSNG.0.9, SSC.0.9)
 comb.0.9 <- comb.0.9[which(comb.0.9$size.bin.end <= 30000),]
 
-ggplot(comb.0.9, aes(x = size.bin.start, y = cut.off)) +
-  geom_point(aes(color=cohort)) +
-  geom_line(aes(color=cohort)) +
-  scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
-  labs(y='Control No. SNV 90th Percentile', x='Size Bin Start (bp)', color="cohort", 
-       title="MSSNG+SSC Bin 90th Percentile (bin size = 2.5 kb)") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
-
-plot.path <- "./figures/sizebins.0.9_2.5kb.png"
-ggsave(plot.path, width = 6, height = 5)
+# mean, bin size = 2.5kb
+MSSNG.SSC.mean <- fread("./data/sizebins.fisher/MSSNG.SSC.mean.2.5kb.fisher.tsv", data.table=F)
+MSSNG.SSC.mean$cohort <- "MSSNG+SSC"
+MSSNG.mean <- fread("./data/sizebins.fisher/MSSNG.mean.2.5kb.fisher.tsv", data.table=F)
+MSSNG.mean$cohort <- "MSSNG"
+SSC.mean <- fread("./data/sizebins.fisher/SSC.mean.2.5kb.fisher.tsv", data.table=F)
+SSC.mean$cohort <- "SSC"
+comb.mean <- rbind(MSSNG.SSC.mean, MSSNG.mean, SSC.mean)
+comb.mean <- comb.mean[which(comb.mean$size.bin.end <= 30000),]
 
 
 
 ########################################################################################################################################################################################
+#### Plot CUT-OFFs for each size bin - sliding window approach ####
+
+Get_Sliding_Window_Cutoff_Plots <- function(cutoffs.df, CH.hits.df, file.name, best.fit.line=F){
+  ### Plots median, 80th, and 90th percentiles for each 2.5kb size bin 
+  ###   using sliding window approach (takes average of 3 size bins)
+  
+  ## Make sliding window df with window averages
+  sliding.window.df <- data.frame()
+  for (group in c("MSSNG+SSC")){ #"MSSNG", "SSC", 
+    group.df <- cutoffs.df[which(cutoffs.df$cohort == group),] 
+    for (i in 2:(nrow(group.df)-3)){
+      if (group.df[i,]$size.bin.start == 20000){ # get average of all size bins >20kb & <30kb
+        window.start.i <- i 
+        window.end.i <- i+3 
+        group.df[i,]$size.bin.end <- 30000
+      } else {
+        window.start.i <- i-1
+        window.end.i <- i+1
+      }
+      window.median <- mean(group.df$median[window.start.i:window.end.i])
+      window.80th <- mean(group.df$"80th.percentile"[window.start.i:window.end.i])
+      window.90th <- mean(group.df$"90th.percentile"[window.start.i:window.end.i])
+      sliding.window.df.row <- group.df[i,]
+      sliding.window.df.row$median <- window.median
+      sliding.window.df.row$`80th.percentile` <- window.80th
+      sliding.window.df.row$`90th.percentile` <- window.90th
+      sliding.window.df <- rbind(sliding.window.df, sliding.window.df.row)
+    }
+  }
+  ## Change "cohort" col in CH hits df & keep only probands
+  CH.hits.df[which(startsWith(CH.hits.df$Sample.ID, "SS")),]$cohort <- "SSC"
+  CH.hits.df[which(!startsWith(CH.hits.df$Sample.ID, "SS")),]$cohort <- "MSSNG"
+  CH.hits.df.probands <- CH.hits.df[which(CH.hits.df$Relation == "Proband"),]
+  CH.hits.df.probands <- CH.hits.df.probands[which(CH.hits.df.probands$exSize <= 30000),]  # remove > 30kb
+  CH.hits.df.probands <- CH.hits.df.probands[which(!(CH.hits.df.probands$exSize == 0 & CH.hits.df.probands$CH_hit == 0)),] # remove (0,0)
+        
+  ## Plot sliding window averages
+  sliding.window.df.melt <- melt(sliding.window.df, 
+                                 id.vars = c("size.bin.start","size.bin.end", "cohort"))
+  ggplot(sliding.window.df.melt[which(sliding.window.df.melt$variable == "median"),], aes(x = size.bin.start, y = value)) +
+    geom_point(aes(colour = variable)) + #shape = cohort
+    geom_point(data=CH.hits.df.probands, 
+               aes(x = exSize, y = CH_hit, color = cohort,  alpha = 0.3)) + #color = cohort
+    labs(y='Control No. SNV Varaible', x='Size Bin Start (bp)',
+         title="MSSNG+SSC Sliding Window (bin size = 2.5 kb)") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9)) +
+    scale_x_continuous(breaks= seq(0,30000,2500)) +
+    geom_smooth(data = sliding.window.df.melt, method='lm', aes(colour = variable)) +
+    geom_smooth(data = sliding.window.df.melt, method='lm', linetype = "dashed", 
+                aes(colour = variable), se = FALSE, fullrange = TRUE) 
+    
+    # geom_line(data = sliding.window.df.melt[which(sliding.window.df.melt$cohort == "MSSNG+SSC"),],
+    #   aes(colour = variable)) +
+    # geom_line(data = sliding.window.df.melt[which(sliding.window.df.melt$cohort == "MSSNG"),],
+    #   aes(colour = variable)) +
+    # geom_line(data = sliding.window.df.melt[which(sliding.window.df.melt$cohort == "SSC"),],
+    #   aes(colour = variable))
+  
+  plot.path <- sprintf("./figures/sliding.window.sizebins.%s_2.5kb.png", file.name)
+  ggsave(plot.path, width = 9, height = 7)
+}
+
+### Combine median, 80th, 90th percentile for sliding window approach ####
+MSSNG.SSC.median.80.90 <- comb.median[,c("size.bin.start", "size.bin.end", "cohort")]
+MSSNG.SSC.median.80.90$"median" <- comb.median$cut.off
+MSSNG.SSC.median.80.90$"80th.percentile" <- comb.0.8$cut.off
+MSSNG.SSC.median.80.90$"90th.percentile" <- comb.0.9$cut.off
+
+MSSNG.SSC.median.80.90.mean <- MSSNG.SSC.median.80.90
+MSSNG.SSC.median.80.90.mean$mean <- comb.mean$cut.off
+
+# Get_Sliding_Window_Cutoff_Plots(MSSNG.SSC.median.80.90, "median.80.90")
+Get_Sliding_Window_Cutoff_Plots(MSSNG.SSC.median.80.90.mean, MSSNG.SSC.CH.hits, "median.80.90.mean")
+
+# ggplot(comb.0.8, aes(x = size.bin.start, y = cut.off)) +
+#   geom_point(aes(color=cohort)) +
+#   geom_line(aes(color=cohort)) +
+#   scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
+#   labs(y='Control No. SNV 80th Percentile', x='Size Bin Start (bp)', color="cohort", 
+#        title="MSSNG+SSC Bin 80th Percentile (bin size = 2.5 kb)") + 
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
+# plot.path <- "./figures/sizebins.0.8_2.5kb.png"
+# ggsave(plot.path, width = 6, height = 5)
+
+# ggplot(comb.0.9, aes(x = size.bin.start, y = cut.off)) +
+#   geom_point(aes(color=cohort)) +
+#   geom_line(aes(color=cohort)) +
+#   scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
+#   labs(y='Control No. SNV 90th Percentile', x='Size Bin Start (bp)', color="cohort", 
+#        title="MSSNG+SSC Bin 90th Percentile (bin size = 2.5 kb)") + 
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
+# 
+# plot.path <- "./figures/sizebins.0.9_2.5kb.png"
+# ggsave(plot.path, width = 6, height = 5)
+
+# ggplot(comb.median, aes(x = size.bin.start, y = cut.off)) +
+#   geom_point(aes(color=cohort)) +
+#   geom_line(aes(color=cohort)) +
+#   scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
+#   labs(y='Control No. SNV Meidan', x='Size Bin Start (bp)', color="cohort", 
+#        title="MSSNG+SSC Bin Median (bin size = 2.5 kb)") + 
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
+# plot.path <- "./figures/sizebins.median_2.5kb.png"
+# ggsave(plot.path, width = 6, height = 5)
+
+# ggplot(comb.mean, aes(x = size.bin.start, y = cut.off)) +
+#   geom_point(aes(color=cohort)) +
+#   geom_line(aes(color=cohort)) +
+#   scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
+#   labs(y='Control No. SNV Mean', x='Size Bin Start (bp)', color="cohort", 
+#        title="MSSNG+SSC Bin Mean (bin size = 2.5 kb)") + 
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
+# plot.path <- "./figures/sizebins.mean_2.5kb.png"
+# ggsave(plot.path, width = 6, height = 5)
+
+## 70th Percentile, bin size = 2.5kb
+# MSSNG.SSC.0.7 <- fread("./data/sizebins.fisher/MSSNG.SSC.0.7_2.5kb.fisher.tsv", data.table=F)
+# MSSNG.SSC.0.7$cohort <- "MSSNG+SSC"
+# MSSNG.0.7 <- fread("./data/sizebins.fisher/MSSNG.0.7_2.5kb.fisher.tsv", data.table=F)
+# MSSNG.0.7$cohort <- "MSSNG"
+# SSC.0.7 <- fread("./data/sizebins.fisher/SSC.0.7_2.5kb.fisher.tsv", data.table=F)
+# SSC.0.7$cohort <- "SSC"
+# comb.0.7 <- rbind(MSSNG.SSC.0.7, MSSNG.0.7, SSC.0.7)
+# comb.0.7 <- comb.0.7[which(comb.0.7$size.bin.end <= 30000),]
+
+# ggplot(comb.0.7, aes(x = size.bin.start, y = cut.off)) +
+#   geom_point(aes(color=cohort)) +
+#   geom_line(aes(color=cohort)) +
+#   scale_x_continuous(breaks= c(0,5000,10000,15000,20000,25000,30000)) +
+#   labs(y='Control No. SNV 70th Percentile', x='Size Bin Start (bp)', color="cohort", 
+#        title="MSSNG+SSC Bin 70th Percentile (bin size = 2.5 kb)") + 
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9))
+# plot.path <- "./figures/sizebins.0.7_2.5kb.png"
+# ggsave(plot.path, width = 6, height = 5)
+
+
+########################################################################################################################################################################################
 #### Plot HISTOGRAM & VIOLIN plots ####
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-cbPalette.t <- c("#99999933", "#E69F0033", "#56B4E933", "#009E7333", "#F0E44233", "#0072B233", "#D55E0033", "#CC79A733")
-cbVermeer <- c('#6495ED','#93CCEA','#6495ED50','#93CCEA50','#6495ED20','#93CCEA20')
-
-
-MSSNG.SSC.CH.hits <- fread("./data/CH_hits/MSSNG_SSC_CH_hits_nofilt.tsv", data.table=F)
-MSSNG.SSC.CH.hits$cohort <- "MSSNG+SSC"
-
-MSSNG.CH.hits <- fread("./data/CH_hits/MSSNG_CH_hits_nofilt.tsv", data.table=F)
-MSSNG.CH.hits$cohort <- "MSSNG"
-
-SSC.CH.hits <- fread("./data/CH_hits/SSC_CH_hits_nofilt.tsv", data.table=F)
-SSC.CH.hits$cohort <- "SSC"
-
-comb.CH.hits <- rbind(MSSNG.SSC.CH.hits, MSSNG.CH.hits, SSC.CH.hits)
-
 
 Get_Histogram_Violin_Plots <- function(CH_hits_df, size.bin){
   CH_hits_df <- CH_hits_df[which(!(CH_hits_df$exSize == 0 & CH_hits_df$CH_hit == 0)),]
