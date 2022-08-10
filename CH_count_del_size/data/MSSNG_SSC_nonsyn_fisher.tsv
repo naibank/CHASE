@@ -1,2 +1,0 @@
-estimate	p.value	conf.low	conf.high	method	alternative	case.above	case.below	control.above	control.below
-1.00140469082066	0.500267500063869	0.912297852054498	Inf	Fisher's Exact Test for Count Data	greater	598	2762	1150	5319

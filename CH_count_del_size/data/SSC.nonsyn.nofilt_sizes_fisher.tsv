@@ -1,6 +1,0 @@
-size.bin	estimate	p.value	conf.low	conf.high	method	alternative	case.above	case.below	control.above	control.below
-0-1kb	1.07030264451859	0.376637525194331	0.791356797517521	Inf	Fisher's Exact Test for Count Data	greater	54	782	106	1643
-1-2kb	1.16878126957709	0.179893952068814	0.890646617741751	Inf	Fisher's Exact Test for Count Data	greater	80	304	138	613
-2-5kb	1.02854904252466	0.445682863051403	0.811004511792856	Inf	Fisher's Exact Test for Count Data	greater	120	249	216	461
-5-10kb	1.10436936553064	0.349788959459078	0.772924814253291	Inf	Fisher's Exact Test for Count Data	greater	65	88	111	166
-10kb+	0.606870926630322	0.963633617887558	0.346921038676729	Inf	Fisher's Exact Test for Count Data	greater	22	51	57	80
