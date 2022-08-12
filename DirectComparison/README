@@ -1,5 +1,10 @@
 This is the analysis where CH events are compared directly between two groups of samples, i.e. probands vs parents, probands vs unaffected siblings, etc.
 
+Hypotheses:
+a) Enrichment of CH events in probands compared to parents (MSSNG+SSC)
+b) No enrichment of CH events in unaffected siblings compared to parents (SSC)
+
+
 Please see below for the detail of the directories and the types of scripts they contain.
 - burden_analysis - Contains files for performing burden analysis on the data through logistic regression.
 	- burden_analysis.R - Perform burden analysis using only inherited deletions and an older model
