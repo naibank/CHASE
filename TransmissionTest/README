@@ -1,5 +1,7 @@
 This is the analysis where SNVs in nontransmitting parents are tested for an over transmission (i.e. > 50%).
 
+Hypothesis: SNVs that contribute to CH events in probands are over transmitted from non-deletion transmitting parents
+
 details of files and folders in this subdirectory. NOTE: The latest scripts (Apr 2022) used do not have any dates prefixed to them. Ex. MSSNG/MSSNG_get_CNV_SNV_table.R is the latest script that gets the CH event data frame from the MSSNG dataset from HPC data.
 
 - CRVs/ contains a list of samples harvesting clinically relevant variants and loss-of-function variants in 135 ASD TADA genes.
