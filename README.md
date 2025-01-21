@@ -1,8 +1,8 @@
 # CHASE (Compound Heterozygosity in Autism Spectrum Etiology) 
 
-The study was done in three ways:
-1) Burden analysis (via logistic regression) between two groups - /DirectComparison/
-2) Transmission test of SNVs in deletion-non-transmitting parents - /TransmissionTest/
-3) CH event density analysis - /CHDensityAnalysis/
+This study have proposed three analytical procedures to investigate the role of deletion-SNV compound heterozygosity (DelCH) in the ASD etiology as following:
+1) Burden analysis of SNVs in probands and deletion-transmitting parents considering only inherited deletions (via conditional logistic regression stratified by deletion) - /1_inherited_del/
+2) Burden analysis of SNVs in probands and both parents considering all deletions (via conditional logistic regression stratified by family) - /2_sample_based/
+3) Transmission Disequilibrium Test (TDT) of SNVs in deletion-non-transmitting parents where SNVs would make up DelCH events (via Fisher's exact test) - /3_TDT_analysis/
 
 Please see README file in each subdirectory for more information about each analysis.
