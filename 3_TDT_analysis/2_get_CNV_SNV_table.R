@@ -52,22 +52,10 @@ Get_CNV_SNV_Table <- function(cnv_sv, snvs, metadata) {
 
 # Main --------------------------------------------------------------------
 
-# snv.path <- "/Users/karahan/Desktop/CHASE/MSSNG_CG_all_snv.txt"
-# meta.dir <- "/Users/karahan/Desktop/CHASE/metadata"
-# cg.meta.path <- paste(meta.dir, "MSSNG_CG.metadata.tsv", sep = "/")
-# ilmn.meta.path <- paste(meta.dir, "MSSNG_ILMN.metadata.tsv", sep = "/")
-# ssc.meta.path <- paste(meta.dir, "SSC.metadata.tsv", sep = "/")
-# spark1.meta.path <- paste(meta.dir, "SPARK_WGS_1.metadata.tsv", sep = "/")
-# spark2.meta.path <- paste(meta.dir, "SPARK_WGS_2.metadata.tsv", sep = "/")
-# spark3.meta.path <- paste(meta.dir, "SPARK_WGS_3.metadata.tsv", sep = "/")
-# spark4.meta.path <- paste(meta.dir, "SPARK_WGS_4.metadata.tsv", sep = "/")
-# cnv_sv.path <- "/Users/karahan/Desktop/CHASE/CNV+SV/MSSNG_CG.cnvs.svs.1per.cds.mosaic.tagged.tsv"
-
-snv.path <- "/hpf/largeprojects/tcagstor/scratch/kara.han/CHASE/data/SNV/SSC_all_snv.txt"
-meta.dir <- "/hpf/largeprojects/tcagstor/users/worrawat/CHASE/2024/prerun_1_sample_family_QCs"
-ssc.meta.path <- paste(meta.dir, "SSC.metadata.tsv", sep = "/")
-cnv_sv.path <- paste(meta.dir, "SSC.cnvs.svs.10per.cds.mosaic.tagged.tsv", sep = "/")
-outfile.path <- "/hpf/largeprojects/tcagstor/scratch/kara.han/CHASE/data/SSC_CNV_SNV_table.tsv"
+snv.path <- "path_to_SNV_file"
+meta.path <- "path_to_metadata_file"
+cnv_sv.path <- "path_to_CNV_SV_file"
+outfile.path <- "path_to_output_file"
 
 snvs <- fread(snv.path, data.table = F)
 names(snvs) <- c("#Sample", "CHROM", "POS", "#id", "typeseq_priority", "effect_priority", "gene_symbol", "entrez_id", 
@@ -76,25 +64,25 @@ names(snvs) <- c("#Sample", "CHROM", "POS", "#id", "typeseq_priority", "effect_p
 nrow(snvs)
 
 # get trios only
-ssc.meta <- fread(ssc.meta.path, data.table = F)
-all.meta <- ssc.meta
+meta <- fread(meta.path, data.table = F)
+all.meta <- meta
 names(all.meta) <- gsub(" ", ".", names(all.meta))
-rm(ssc.meta)
+rm(meta)
 nrow(all.meta)
 
-trio.proband <- all.meta %>% subset(family_member == "trios") # 10521
+trio.proband <- all.meta %>% subset(family_member == "trios")
 nrow(trio.proband)
 sum(trio.proband$Mother.ID == "-")
 sum(trio.proband$Father.ID == "-")
-trio.proband <- trio.proband %>% subset(Mother.ID != "-" & Father.ID != "-") # 10502
+trio.proband <- trio.proband %>% subset(Mother.ID != "-" & Father.ID != "-")
 nrow(trio.proband)
 sum(trio.proband$Mother.ID == "-")
 sum(trio.proband$Father.ID == "-")
-trio.all <- all.meta %>% subset(Sample.ID %in% c(trio.proband$Mother.ID, trio.proband$Father.ID, trio.proband$Sample.ID)) # 24509
+trio.all <- all.meta %>% subset(Sample.ID %in% c(trio.proband$Mother.ID, trio.proband$Father.ID, trio.proband$Sample.ID))
 nrow(trio.all)
 table(trio.all$Relation, trio.all$Affection)
-parent02 <- trio.all %>% subset((Relation == "father" & Affection %in% c(0, 2)) | (Relation == "mother" & Affection %in% c(0, 2))) # 58
-metadata <- trio.all %>% subset(! (Sample.ID %in% parent02$Sample.ID | Mother.ID %in% parent02$Sample.ID | Father.ID %in% parent02$Sample.ID)) # 24377 
+parent02 <- trio.all %>% subset((Relation == "father" & Affection %in% c(0, 2)) | (Relation == "mother" & Affection %in% c(0, 2)))
+metadata <- trio.all %>% subset(! (Sample.ID %in% parent02$Sample.ID | Mother.ID %in% parent02$Sample.ID | Father.ID %in% parent02$Sample.ID)) 
 nrow(parent02)
 nrow(metadata)
 table(metadata$Relation, metadata$Affection)
@@ -128,8 +116,3 @@ table <- table[which(!table$Relation == "NA"),]
 table(table$Relation)
 
 write.table(table, outfile.path, sep = "\t", row.names = F, quote = F, col.names = T)
-
-# plot <- ggplot(data = table, aes(x = effect_priority, fill = Relation))
-# plot + geom_bar(stat = "count", position = position_dodge()) +
-#   geom_label(stat = "count", aes(label = ..count.., fill = Relation), position = position_dodge(width = 1)) +
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
