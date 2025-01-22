@@ -1,26 +1,7 @@
-################################################################################################################################################################################
-# 
-# MSSNG+SSC_get_FisherTest_snvfreq_SW.R
-# purpose: outputs Fisher's exact test results for MSSNG+SSC combined parent-proband and 
-#           SSC parent-unaffected sibling for different pRec & SNV frequency cut-offs 
-#           (includes OR and transmissions rate)
-# input: *dataset*_CNV_SNV_table_eventfreq.tsv 
-#         /hpf/largeprojects/tcagstor/tcagstor_tmp/shania.wu/MSSNG+SSC/MSSNG+SSC_TDT/data
-#             -> output of MSSNG+SSC_process_CNV_SNV_table_SW.R
-# output: Fisher's exact test results tables (e.g. MSSNG.SSC_parent_proband_FisherTest_snvfreq0.1.tsv)
-#         /hpf/largeprojects/tcagstor/tcagstor_tmp/shania.wu/MSSNG+SSC/MSSNG+SSC_TDT/data
-#             -> used as input for create_TT_results_plot_SW.R
-#         
-# notes:
-#
-##############################################################################################################################################################################
-
 library(data.table)
 library(dplyr)
 
-setwd("/hpf/largeprojects/tcagstor/scratch/kara.han/CHASE/data/10perc_CNV/CNV+SNV")
-
-# lof <- read.delim("~/hpf/largeprojects/tcagstor/tcagstor_tmp/shania.wu/gene_data/gnomad.v2.1.1.lof_metrics.by_gene_March2020_hg37.txt", stringsAsFactors = F)
+setwd("CHASE/3_TDT_analysis")
 
 Get_Fisher_Table <- function(CNV_SNV_table_proband_ori, CNV_SNV_table_unaff_sib_ori, GEgenes, name){
   child <- "proband or affected sibling" 
@@ -156,49 +137,18 @@ Get_Fisher_Table <- function(CNV_SNV_table_proband_ori, CNV_SNV_table_unaff_sib_
   }
 }
 
+GEgenes <- fread("CHASE/recessive_genes/GE_Neurodevelopment_biallelic_Xavier_genes.txt", data.table = F, header = F)
 
-##############################################################################################################################################################################
-### MSSNG+SSC Parent-Proband ####
-# meta <- read.delim("../../../data/MSSNG_metadata.tsv", stringsAsFactors = F)
-# ssc <- read.delim("../../../data/SSC/SSC_metadata.tsv", stringsAsFactors = F)
-# col <- intersect(names(meta), names(ssc))
-# 
-# meta <- rbind(meta[, col], ssc[, col])
-# 
-# meta <- meta[, c("Family.ID", "Sample.ID", "Relation")]
-
-GEgenes <- fread("/hpf/largeprojects/tcagstor/users/worrawat/CHASE/2024/recessive_genes/GE_Neurodevelopment_biallelic_Xavier_genes.txt", data.table = F, header = F)
-
-CNV_SNV_table <- data.table::fread("240816/MSSNG_SSC_SPARK_CNV_SNV_table_eventfreq.tsv", data.table = F) 
-nrow(CNV_SNV_table) # 42725
+CNV_SNV_table <- data.table::fread("path_to_output_from_step_3", data.table = F) 
+nrow(CNV_SNV_table)
 CNV_SNV_table <- CNV_SNV_table %>% subset(mosaic == FALSE) 
-nrow(CNV_SNV_table) # 32163
+nrow(CNV_SNV_table)
 CNV_SNV_table <- CNV_SNV_table[which(CNV_SNV_table$gnomAD_oe_lof_upper > 0.35 | is.na(CNV_SNV_table$gnomAD_oe_lof_upper)), ]
-nrow(CNV_SNV_table) # 30682
+nrow(CNV_SNV_table)
 
-meta.dir <- "/hpf/largeprojects/tcagstor/users/worrawat/CHASE/2024/prerun_1_sample_family_QCs"
-cg.meta.path <- paste(meta.dir, "MSSNG_CG.metadata.tsv", sep = "/")
-ilmn.meta.path <- paste(meta.dir, "MSSNG_ILMN.metadata.tsv", sep = "/")
-ssc.meta.path <- paste(meta.dir, "SSC.metadata.tsv", sep = "/")
-spark1.meta.path <- paste(meta.dir, "SPARK_WGS_1.metadata.tsv", sep = "/")
-spark2.meta.path <- paste(meta.dir, "SPARK_WGS_2.metadata.tsv", sep = "/")
-spark3.meta.path <- paste(meta.dir, "SPARK_WGS_3.metadata.tsv", sep = "/")
-spark4.meta.path <- paste(meta.dir, "SPARK_WGS_4.metadata.tsv", sep = "/")
-
-cg.meta <- fread(cg.meta.path, data.table = F)
-ilmn.meta <- fread(ilmn.meta.path, data.table = F)
-ssc.meta <- fread(ssc.meta.path, data.table = F)
-spark1.meta <- fread(spark1.meta.path, data.table = F)
-spark2.meta <- fread(spark2.meta.path, data.table = F)
-spark3.meta <- fread(spark3.meta.path, data.table = F)
-spark4.meta <- fread(spark4.meta.path, data.table = F)
-all.meta <- rbind(cg.meta, ilmn.meta, ssc.meta, spark1.meta, spark2.meta, spark3.meta, spark4.meta)
+all.meta <- fread("path_to_metadata_file", data.table = F)
 names(all.meta) <- gsub(" ", ".", names(all.meta))
 all.meta <- unique(all.meta)
-
-# Remove multigeneration families
-CNV_SNV_table <- CNV_SNV_table %>% subset(! `#Sample` %in% c("5-0512-001", "5-0512-002", "5-0512-003", "5-0512-004", "5-0512-006"))
-nrow(CNV_SNV_table) # 32158
 
 meta_probandID <- all.meta$Sample.ID[all.meta$Relation %in% c('proband','affected sibling', 'child', 'sibling') &
                                        all.meta$Affection == 2]
@@ -208,9 +158,7 @@ meta_unaffSibID <- all.meta$Sample.ID[all.meta$Relation %in% c('child', 'other s
 CNV_SNV_table_proband <- CNV_SNV_table %>% subset(sample %in% meta_probandID) 
 CNV_SNV_table_unaff_sib <- CNV_SNV_table %>% subset(sample %in% meta_unaffSibID) 
 
-nrow(CNV_SNV_table_proband) # 21263
-nrow(CNV_SNV_table_unaff_sib) # 10895
+nrow(CNV_SNV_table_proband)
+nrow(CNV_SNV_table_unaff_sib)
 
-Get_Fisher_Table(CNV_SNV_table_proband, CNV_SNV_table_unaff_sib, GEgenes, name = "MSSNG_SSC_SPARK_parent_proband_US")
-
-tmp <- CNV_SNV_table_proband[which(CNV_SNV_table_proband$effect_priority == "synonymous SNV" & CNV_SNV_table_proband$gene_symbol %in% GEgenes$V1), ]
+Get_Fisher_Table(CNV_SNV_table_proband, CNV_SNV_table_unaff_sib, GEgenes, name = "parent_proband_US") # change name to desired output prefix
