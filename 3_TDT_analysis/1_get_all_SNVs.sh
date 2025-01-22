@@ -5,7 +5,6 @@
 #SBATCH --tmp=100G
 #SBATCH -t 180:00:00
 
-root_dir="path_to_root_dir"
 out_dir="path_to_output_directory"
 tool="path_to_1_get_SNVs.R"
 
