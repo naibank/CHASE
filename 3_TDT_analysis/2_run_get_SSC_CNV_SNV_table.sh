@@ -7,4 +7,4 @@
 
 module load R/4.4.0
 
-Rscript /hpf/largeprojects/tcagstor/scratch/kara.han/CHASE/script/2_get_SSC_CNV_SNV_table.R
+Rscript 2_get_CNV_SNV_table.R
