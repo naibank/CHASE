@@ -132,7 +132,7 @@ Get_Fisher_Table <- function(CNV_SNV_table_proband_ori, CNV_SNV_table_unaff_sib_
         }
       }
     #}
-    table_name <- sprintf("/hpf/largeprojects/tcagstor/users/worrawat/CHASE/2024/2_TDT_analysis/result/%s_FisherTest_eventfreq%s.tsv", name, format(event_freq, scientific = F))
+    table_name <- sprintf("%s_FisherTest_eventfreq%s.tsv", name, format(event_freq, scientific = F))
     write.table(test.out, table_name, sep="\t", row.names=F, quote=F, col.names=T)
   }
 }
