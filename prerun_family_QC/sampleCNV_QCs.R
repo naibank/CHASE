@@ -3,7 +3,7 @@ library(GenomicRanges)
 library(ggplot2)
 
 #### perform sample QCs based on CNV count and SV count (3IQR+Q3 | 3SD+mean)
-#### identify SVs/CVs that are genomic disorders, impact ASD candidate genes, large >3MB and exclude those samples from the analysis
+#### identify SVs/CNVs that are genomic disorders, impact ASD candidate genes, large >3MB and exclude those samples from the analysis
 #### extract one proband and one unaffected sib per family
 #### filter CNVs to CDS
 
