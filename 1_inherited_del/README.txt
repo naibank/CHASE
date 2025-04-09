@@ -1,4 +1,5 @@
-This is the pipeline for CHASE part 1
+# This is the pipeline for CHASE strategy 1- Deletion matched:
+Burden Analysis of DelCH events in inherited deletions: A group-level comparison between probands and their deletion-transmitting parents. 
 
 To run this, you need input from ../prerun_family_QCs/
 
