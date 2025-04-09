@@ -1,6 +1,7 @@
 # CHASE (Compound Heterozygosity in Autism Spectrum Etiology) 
 
 This study has proposed three analytical procedures to investigate the role of deletion-SNV compound heterozygosity (DelCH) in the ASD etiology as following:
+
 ![image](https://github.com/user-attachments/assets/7c8f3cc1-9fa7-4188-a618-37f1c7a6ddb9)
 
 1) Burden analysis of SNVs in probands and deletion-transmitting parents considering only inherited deletions (via conditional logistic regression stratified by deletion) - /1_inherited_del/
