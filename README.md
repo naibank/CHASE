@@ -18,4 +18,5 @@ Before running any of the analysis, preprocessing steps for sample QCs and varia
 
 ## Miscellaneous files
 /recessive_genes contains list of recessive genes obtained from GenomicsEngland gene panel for NDD genes, and our in-house manual curation as described in the paper.
-/gene_info contains gnomAD gene contraint information and gene definition from RefSeq release 200 (GRCh38) 
+
+/gene_info contains gnomAD gene contraint information and gene definition from RefSeq release 200 (GRCh38). 
