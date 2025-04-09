@@ -11,7 +11,7 @@ This study has proposed three analytical procedures to investigate the role of d
 ## Strategy 3: TDT
 5) Transmission Disequilibrium Test (TDT) of SNVs in deletion-non-transmitting parents where SNVs would make up DelCH events (via Fisher's exact test) - /3_TDT_analysis/
 
-Please see README file in each subdirectory for more information about each analysis.
+**Please see README file in each subdirectory for more information about each analysis.**
 
 ## Control Quality Steps
 Before running any of the analysis, preprocessing steps for sample QCs and variants QCs are required, which can be done using scripts located in /prerun_family_QC/ folder.
