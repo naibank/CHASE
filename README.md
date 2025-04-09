@@ -13,4 +13,5 @@ This study has proposed three analytical procedures to investigate the role of d
 
 Please see README file in each subdirectory for more information about each analysis.
 
+## Control Quality Steps
 Before running any of the analysis, preprocessing steps for sample QCs and variants QCs are required, which can be done using scripts located in /prerun_family_QC/ folder.
