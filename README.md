@@ -2,7 +2,7 @@
 
 This study has proposed three analytical procedures to investigate the role of deletion-SNV compound heterozygosity (DelCH) in the ASD etiology as following:
 
-![image](https://github.com/user-attachments/assets/7c8f3cc1-9fa7-4188-a618-37f1c7a6ddb9)
+<img width="1479" height="1446" alt="CHASEmainschemeLastVersion pptxcut" src="https://github.com/user-attachments/assets/6fa8ed63-486d-42fc-b16d-740ec667cb8a" />
 
 ## Strategy 1: Deletion matched
 Burden analysis of SNVs in probands and deletion-transmitting parents considering only inherited deletions (via conditional logistic regression stratified by deletion) - /1_inherited_del/
